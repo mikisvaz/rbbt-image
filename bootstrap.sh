@@ -36,5 +36,5 @@ sudo gem install --no-ri --no-rdoc ruby-prof
 mkdir -p ~/.rbbt/etc
 
 # File servers: to speed up the production of some resources
-echo "Organism: http://studyexplorer.bioinfo.cnio.es/" > ~/.rbbt/etc/file_servers
+echo "Organism: http://se.bioinfo.cnio.es/" > ~/.rbbt/etc/file_servers
 

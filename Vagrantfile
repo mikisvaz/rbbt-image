@@ -17,6 +17,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box_url = "http://files.vagrantup.com/precise32.box"
 
   config.vm.provision :shell, :path => "bootstrap.sh"
+  #config.vm.network "forwarded_port", guest: 2887, host: 28879
+
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,

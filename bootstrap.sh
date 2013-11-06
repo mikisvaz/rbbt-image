@@ -34,8 +34,15 @@ sudo gem install --no-ri --no-rdoc \
 # CONFIG
 # ======
 
+cat > config.sh <<EOF
+
+
 mkdir -p ~/.rbbt/etc
 
 # File servers: to speed up the production of some resources
 echo "Organism: http://se.bioinfo.cnio.es/" > ~/.rbbt/etc/file_servers
+
+
+EOF
+ssh -l -c "bash config.sh" vagrant
 

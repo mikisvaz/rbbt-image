@@ -26,9 +26,9 @@ sudo env JAVA_HOME=/usr/lib/jvm/java-7-openjdk-i386 gem install --conservative -
 
 # Rbbt and some optional gems
 sudo gem install --conservative --no-ri --no-rdoc \
-    rbbt-util rbbt-rest rbbt-study rbbt-dm rbbt-text rbbt-sources rbbt-phgx \
+    rbbt-util rbbt-rest rbbt-study rbbt-dm rbbt-text rbbt-sources rbbt-phgx rbbt-GE \
     tokyocabinet \
-    uglifier therubyracer \
+    uglifier therubyracer kramdown \
     ruby-prof
 
 # CONFIG

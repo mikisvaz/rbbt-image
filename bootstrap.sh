@@ -19,13 +19,13 @@ sudo apt-get install -y \
 # -------------------------
 
 # R (extra config in gem)
-sudo gem install --no-ri --no-rdoc rsruby -- --with-R-dir=/usr/lib/R --with-R-include=/usr/share/R/include 
+sudo gem install --conservative --no-ri --no-rdoc rsruby -- --with-R-dir=/usr/lib/R --with-R-include=/usr/share/R/include 
 
 # Java (extra config in gem)
-sudo env JAVA_HOME=/usr/lib/jvm/java-7-openjdk-i386 gem install --no-ri --no-rdoc rjb
+sudo env JAVA_HOME=/usr/lib/jvm/java-7-openjdk-i386 gem install --conservative --no-ri --no-rdoc rjb
 
 # Rbbt and some optional gems
-sudo gem install --no-ri --no-rdoc \
+sudo gem install --conservative --no-ri --no-rdoc \
     rbbt-util rbbt-rest rbbt-study rbbt-dm rbbt-text rbbt-sources rbbt-phgx \
     tokyocabinet \
     uglifier therubyracer \

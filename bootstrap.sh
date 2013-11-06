@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash -x
 
 # INSTALL
 # =======
@@ -31,18 +31,38 @@ sudo gem install --no-ri --no-rdoc \
     uglifier therubyracer \
     ruby-prof
 
-# CONFIG
-# ======
 
+
+
+#{{{ CONFIG
+# ======
 cat > config.sh <<EOF
 
 
+# GENERAL
+# -------
 mkdir -p ~/.rbbt/etc
 
 # File servers: to speed up the production of some resources
 echo "Organism: http://se.bioinfo.cnio.es/" > ~/.rbbt/etc/file_servers
 
 
-EOF
-ssh -l -c "bash config.sh" vagrant
+# APP
+# ---
+mkdir -p ~/.rbbt/studies/
+cd ~/.rbbt/studies/
 
+export RBBT_WORKFLOW_AUTOINSTALL=true
+export RBBT_LOG=0
+
+rbbt workflow task ICGC datasets|grep -v "#" |cut -f 1 | while read p; do (rbbt workflow task ICGC prepare_study -o "\$p" -d "\$p" --jobname "\$p"); sleep 2;  done
+
+rbbt app install ICGCScout
+ln -s ~/.rbbt/studies/ ~/.rbbt/app/ICGCScout/studies
+
+rbbt app start ICGCScout -e production -p 2887 --log=0
+
+
+EOF
+su -l -c "bash config.sh" vagrant
+#}}}

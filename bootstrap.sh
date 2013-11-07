@@ -25,13 +25,11 @@ sudo gem install --conservative --no-ri --no-rdoc rsruby -- --with-R-dir=/usr/li
 sudo env JAVA_HOME=/usr/lib/jvm/java-7-openjdk-i386 gem install --conservative --no-ri --no-rdoc rjb
 
 # Rbbt and some optional gems
-sudo gem install --conservative --no-ri --no-rdoc \
+sudo gem install --no-ri --no-rdoc \
     rbbt-util rbbt-rest rbbt-study rbbt-dm rbbt-text rbbt-sources rbbt-phgx rbbt-GE \
     tokyocabinet \
     uglifier therubyracer kramdown \
     ruby-prof
-
-
 
 
 #{{{ CONFIG
@@ -41,24 +39,26 @@ cat > config.sh <<EOF
 
 # GENERAL
 # -------
-mkdir -p ~/.rbbt/etc
 
 # File servers: to speed up the production of some resources
-echo "Organism: http://se.bioinfo.cnio.es/" > ~/.rbbt/etc/file_servers
+for resource in Organism ICGC COSMIC KEGG; do
+    rbbt file_server add \$resource http://se.bioinfo.cnio.es/
+done
+
+# Remote workflows: avoid costly cache generation
+for workflow in Sequence MutEval; do
+    rbbt workflow remote add \$workflow http://se.bioinfo.cnio.es/
+done
 
 
 # APP
 # ---
-mkdir -p ~/.rbbt/studies/
-cd ~/.rbbt/studies/
+rbbt app install ICGCScout
 
 export RBBT_WORKFLOW_AUTOINSTALL=true
 export RBBT_LOG=0
 
-rbbt workflow task ICGC datasets|grep -v "#" |cut -f 1 | while read p; do (rbbt workflow task ICGC prepare_study -o "\$p" -d "\$p" --jobname "\$p"); sleep 2;  done
-
-rbbt app install ICGCScout
-ln -s ~/.rbbt/studies/ ~/.rbbt/app/ICGCScout/studies
+rbbt workflow cmd ICGC bootstrap 2
 
 rbbt app start ICGCScout -e production -p 2887 --log=0
 

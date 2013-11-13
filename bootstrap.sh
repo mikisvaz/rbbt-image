@@ -9,7 +9,7 @@ sudo apt-get update
 sudo apt-get install -y \
   bison autoconf g++ libxslt1-dev make \
   zlib1g-dev libbz2-dev libreadline6 libreadline6-dev \
-  curl git openssl libyaml-0-2 libyaml-dev \
+  wget curl git openssl libyaml-0-2 libyaml-dev \
   ruby1.9.1 ruby1.9.1-dev \
   r-base-core r-base-dev \
   openjdk-7-jdk \
@@ -28,9 +28,8 @@ sudo env JAVA_HOME=/usr/lib/jvm/java-7-openjdk-i386 gem install --conservative -
 sudo gem install --no-ri --no-rdoc \
     rbbt-util rbbt-rest rbbt-study rbbt-dm rbbt-text rbbt-sources rbbt-phgx rbbt-GE \
     tokyocabinet \
-    uglifier therubyracer kramdown \
+    uglifier therubyracer kramdown spreasheet\
     ruby-prof
-
 
 #{{{ CONFIG
 # ======
@@ -41,14 +40,15 @@ cat > config.sh <<EOF
 # -------
 
 # File servers: to speed up the production of some resources
-for resource in Organism ICGC COSMIC KEGG; do
+for resource in Organism ICGC COSMIC KEGG InterPro; do
     rbbt file_server add \$resource http://se.bioinfo.cnio.es/
 done
 
 # Remote workflows: avoid costly cache generation
-for workflow in Sequence MutEval; do
+for workflow in Sequence; do
     rbbt workflow remote add \$workflow http://se.bioinfo.cnio.es/
 done
+#echo "" -n > ~/.rbbt/etc/remote_workflows
 
 
 # APP
@@ -60,7 +60,7 @@ export RBBT_LOG=0
 
 rbbt workflow cmd ICGC bootstrap 2
 
-rbbt app start ICGCScout -e production -p 2887 --log=0
+rbbt app start ICGCScout -e production -p 2887 --log=0 &
 
 
 EOF

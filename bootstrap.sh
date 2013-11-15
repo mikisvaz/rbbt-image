@@ -52,14 +52,6 @@ done
 
 # APP
 # ---
-rbbt app install ICGCScout
-
-export RBBT_WORKFLOW_AUTOINSTALL=true
-export RBBT_LOG=0
-
-rbbt workflow cmd ICGC bootstrap 2
-
-rbbt app start ICGCScout -e production -p 2887 --log=0 &
 
 
 EOF

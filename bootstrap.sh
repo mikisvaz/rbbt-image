@@ -38,6 +38,7 @@ cat > config.sh <<'EOF'
 
 # GENERAL
 # -------
+mkdir -p ~/.rbbt/etc
 
 # File servers: to speed up the production of some resources
 for resource in Organism ICGC COSMIC KEGG InterPro; do

@@ -33,7 +33,7 @@ sudo gem install --no-ri --no-rdoc \
 
 #{{{ CONFIG
 # ======
-cat > config.sh <<EOF
+cat > config.sh <<'EOF'
 
 
 # GENERAL
@@ -41,14 +41,13 @@ cat > config.sh <<EOF
 
 # File servers: to speed up the production of some resources
 for resource in Organism ICGC COSMIC KEGG InterPro; do
-    rbbt file_server add \$resource http://se.bioinfo.cnio.es/
+    rbbt file_server add $resource http://se.bioinfo.cnio.es/
 done
 
 # Remote workflows: avoid costly cache generation
 for workflow in Sequence; do
-    rbbt workflow remote add \$workflow http://se.bioinfo.cnio.es/
+    rbbt workflow remote add $workflow http://se.bioinfo.cnio.es/
 done
-#echo "" -n > ~/.rbbt/etc/remote_workflows
 
 
 # APP

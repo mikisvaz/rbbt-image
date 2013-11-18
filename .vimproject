@@ -1,13 +1,10 @@
 rbbt-vagrant=/$PWD filter="*" {
  README.md
  Vagrantfile
- bootstrap.sh
  bin=bin{
   variables.sh
   ubuntu_setup.sh
   user_setup.sh
   bootstrap.sh
- }
- etc=etc{
  }
 }

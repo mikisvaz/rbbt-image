@@ -28,32 +28,5 @@ sudo env JAVA_HOME=/usr/lib/jvm/java-7-openjdk-i386 gem install --conservative -
 sudo gem install --no-ri --no-rdoc \
     rbbt-util rbbt-rest rbbt-study rbbt-dm rbbt-text rbbt-sources rbbt-phgx rbbt-GE \
     tokyocabinet \
-    uglifier therubyracer kramdown spreasheet\
+    uglifier therubyracer kramdown\
     ruby-prof
-
-#{{{ CONFIG
-# ======
-cat > config.sh <<'EOF'
-
-
-# GENERAL
-# -------
-
-# File servers: to speed up the production of some resources
-for resource in Organism ICGC COSMIC KEGG InterPro; do
-    rbbt file_server add $resource http://se.bioinfo.cnio.es/
-done
-
-# Remote workflows: avoid costly cache generation
-for workflow in Sequence; do
-    rbbt workflow remote add $workflow http://se.bioinfo.cnio.es/
-done
-
-
-# APP
-# ---
-
-
-EOF
-su -l -c "bash config.sh" vagrant
-#}}}

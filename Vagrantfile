@@ -1,6 +1,61 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+USER='vagrant'
+SKIP_BASE_SYSTEM=true
+
+VARIABLES={
+ :RBBT_LOG => 0,
+ :BOOTSTRAP_WORKFLOWS => "Enrichment Translation Sequence MutationEnrichment"
+}
+
+
+provision_script =<<EOF
+cat "$0"
+echo "Running provisioning"
+echo
+
+
+# BASE SYSTEM
+echo "1. Provisioning base system"
+#{File.read("bin/ubuntu_setup.sh") unless SKIP_BASE_SYSTEM}
+
+####################
+# USER CONFIGURATION
+user_script=/home/#{USER}/.rbbt/bin/provision
+mkdir -p $(dirname $user_script)
+cat > $user_script <<'EUSER'
+
+echo "2.1. Custom variables"
+#{
+  VARIABLES.collect do |variable,value|
+    "export " << ([variable,'"' << value.to_s << '"'] * "=")
+  end * "\n"
+}
+
+echo "2.2. Default variables"
+#{ File.read("bin/variables.sh") }
+ 
+echo "2.3. Configuring rbbt"
+#{File.read("bin/user_setup.sh")}
+  
+echo "2.4. Bootstrap system"
+#{File.read("bin/bootstrap.sh")}
+
+EUSER
+####################
+echo "2. Running user configuration as '#{USER}'"
+chown #{USER} $user_script; 
+su -l -c "bash $user_script" #{USER}
+
+# DONE
+echo 
+echo "Installation done."
+
+#--------------------------------------------------------
+
+EOF
+
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
@@ -16,9 +71,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # doesn't already exist on the user's system.
   config.vm.box_url = "http://files.vagrantup.com/precise32.box"
 
-  config.vm.provision :shell, :path => "bootstrap.sh"
   config.vm.network "forwarded_port", guest: 2887, host: 28879
 
+  config.vm.provision :shell, :inline => provision_script
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,

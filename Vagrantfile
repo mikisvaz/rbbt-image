@@ -6,9 +6,8 @@ SKIP_BASE_SYSTEM=true
 
 VARIABLES={
  :RBBT_LOG => 0,
- :BOOTSTRAP_WORKFLOWS => "Enrichment Translation Sequence MutationEnrichment"
+ :BOOTSTRAP_WORKFLOWS => "Enrichment Translation Sequence MutationEnrichment ICGC"
 }
-
 
 provision_script =<<EOF
 cat "$0"

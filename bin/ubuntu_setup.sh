@@ -13,20 +13,21 @@ sudo apt-get install -y \
   ruby1.9.1 ruby1.9.1-dev \
   r-base-core r-base-dev \
   openjdk-7-jdk \
-  libtokyocabinet-dev tokyocabinet-bin
+  libtokyocabinet-dev tokyocabinet-bin \
+  nginx puma unicorn
 
 # Ruby gems and Rbbt
 # -------------------------
 
 # R (extra config in gem)
-sudo gem install --conservative --no-ri --no-rdoc rsruby -- --with-R-dir=/usr/lib/R --with-R-include=/usr/share/R/include 
+sudo gem install --conservative --no-ri --no-rdoc rsruby -- --with-R-dir=$R_HOME --with-R-include=/usr/share/R/include 
 
-# Java (extra config in gem)
-sudo env JAVA_HOME=/usr/lib/jvm/java-7-openjdk-i386 gem install --conservative --no-ri --no-rdoc rjb
+# Java (extra config in gem, make user JAVA_HOME is set)
+sudo gem install --conservative --no-ri --no-rdoc rjb
 
 # Rbbt and some optional gems
 sudo gem install --no-ri --no-rdoc \
     rbbt-util rbbt-rest rbbt-study rbbt-dm rbbt-text rbbt-sources rbbt-phgx rbbt-GE \
     tokyocabinet \
-    uglifier therubyracer kramdown\
-    ruby-prof
+    uglifier therubyracer kramdown \
+    ruby-prof unicorn narray

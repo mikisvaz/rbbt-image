@@ -2,11 +2,15 @@
 # vi: set ft=ruby :
 
 USER='vagrant'
-SKIP_BASE_SYSTEM=true
+APP='ICGCScout'
+SKIP_BASE_SYSTEM=false
 
 VARIABLES={
  :RBBT_LOG => 0,
- :BOOTSTRAP_WORKFLOWS => "Enrichment Translation Sequence MutationEnrichment ICGC"
+ :BOOTSTRAP_WORKFLOWS => "Translation Enrichment Sequence MutationEnrichment ICGC",
+ :R_HOME => "/usr/lib/R",
+ :RHOME => "/usr/lib/R",
+ :JAVA_HOME => "/usr/lib/jvm/java-7-openjdk-i386"
 }
 
 provision_script =<<EOF
@@ -21,10 +25,15 @@ echo "1. Provisioning base system"
 
 ####################
 # USER CONFIGURATION
-user_script=/home/#{USER}/.rbbt/bin/provision
-mkdir -p $(dirname $user_script)
-cat > $user_script <<'EUSER'
 
+USER_HOME="/home/#{USER}"
+RBBT_DIR="$USER_HOME/.rbbt"
+
+user_script="$RBBT_DIR/bin/provision"
+mkdir -p $(dirname $user_script)
+chown -R #{USER} /home/#{USER}/.rbbt/
+
+cat > $user_script <<'EUSER'
 echo "2.1. Custom variables"
 #{
   VARIABLES.collect do |variable,value|
@@ -41,11 +50,23 @@ echo "2.3. Configuring rbbt"
 echo "2.4. Bootstrap system"
 #{File.read("bin/bootstrap.sh")}
 
+echo "3. Start App"
+rbbt app install #{APP}
+rbbt app start #{APP} -e production -p 28871 -s unicorn &
+
 EUSER
 ####################
 echo "2. Running user configuration as '#{USER}'"
 chown #{USER} $user_script; 
 su -l -c "bash $user_script" #{USER}
+
+# NGINX & UNICORN
+
+echo "3. Configure App server: Nginx + Unicorn"
+cat | sed 's/USER/#{USER}/;s/APP/#{APP}/' > /etc/nginx/nginx.conf << 'ENGINX'
+#{File.read("etc/nginx.conf")}
+ENGINX
+/etc/init.d/nginx stop; sleep 3; /etc/init.d/nginx start
 
 # DONE
 echo 

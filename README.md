@@ -2,7 +2,7 @@
 
 ## Instructions
 
-* Install [Vagrant](www.vagrantup.com)
+* Install [Vagrant](http://www.vagrantup.com)
 * Clone repo
 * `vagrant up`
 

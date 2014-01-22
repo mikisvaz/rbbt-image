@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 USER='vagrant'
-SKIP_BASE_SYSTEM=true
+SKIP_BASE_SYSTEM=false
 
 VARIABLES={
  :RBBT_LOG => 0,

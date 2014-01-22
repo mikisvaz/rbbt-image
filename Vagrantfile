@@ -24,6 +24,7 @@ echo "1. Provisioning base system"
 # USER CONFIGURATION
 user_script=/home/#{USER}/.rbbt/bin/provision
 mkdir -p $(dirname $user_script)
+chown -R #{USER} /home/#{USER}/.rbbt/
 cat > $user_script <<'EUSER'
 
 echo "2.1. Custom variables"

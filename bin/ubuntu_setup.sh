@@ -21,6 +21,8 @@ sudo apt-get install -y \
 # R (extra config in gem)
 sudo gem install --conservative --no-ri --no-rdoc rsruby -- --with-R-dir=/usr/lib/R --with-R-include=/usr/share/R/include 
 
+echo "export $R_HOME=/user/lib/R # For Ruby's RSRuby gem" >> /etc/profile
+
 # Java (extra config in gem)
 sudo env JAVA_HOME=/usr/lib/jvm/java-7-openjdk-i386 gem install --conservative --no-ri --no-rdoc rjb
 

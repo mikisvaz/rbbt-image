@@ -10,7 +10,7 @@ sudo apt-get install -y \
   bison autoconf g++ libxslt1-dev make \
   zlib1g-dev libbz2-dev libreadline6 libreadline6-dev \
   wget curl git openssl libyaml-0-2 libyaml-dev \
-  ruby1.9.1 ruby1.9.1-dev \
+  ruby2.1.1 ruby2.1.1-dev \
   r-base-core r-base-dev \
   openjdk-7-jdk \
   libtokyocabinet-dev tokyocabinet-bin

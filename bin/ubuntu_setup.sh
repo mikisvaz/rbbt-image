@@ -5,29 +5,23 @@
 
 # Basic system requirements
 # -------------------------
-sudo apt-get update
-sudo apt-get install -y \
+apt-get -y update
+apt-get -y update
+apt-get -y install \
   bison autoconf g++ libxslt1-dev make \
   zlib1g-dev libbz2-dev libreadline6 libreadline6-dev \
   wget curl git openssl libyaml-0-2 libyaml-dev \
-  ruby2.1.1 ruby2.1.1-dev \
-  r-base-core r-base-dev \
+  ruby2.0 ruby-dev \
+  r-base-core r-base-dev r-cran-rserve \
   openjdk-7-jdk \
-  libtokyocabinet-dev tokyocabinet-bin
+  libtokyocabinet-dev tokyocabinet-bin \
+  build-essential zlib1g-dev libssl-dev libreadline6-dev libyaml-dev libffi-dev
 
-# Ruby gems and Rbbt
-# -------------------------
 
-# R (extra config in gem)
 grep R_HOME /etc/profile || echo "export R_HOME='/usr/lib/R' # For Ruby's RSRuby gem" >> /etc/profile
-sudo gem install --conservative --no-ri --no-rdoc rsruby -- --with-R-dir=/usr/lib/R --with-R-include=/usr/share/R/include 
+. /etc/profile
 
-# Java (extra config in gem)
-sudo env JAVA_HOME=/usr/lib/jvm/java-7-openjdk-i386 gem install --conservative --no-ri --no-rdoc rjb
+# This link was broken for some reason
+rm /usr/lib/R/bin/Rserve
+ln -s /usr/lib/R/site-library/Rserve/libs/Rserve /usr/lib/R/bin/Rserve
 
-# Rbbt and some optional gems
-sudo gem install --no-ri --no-rdoc \
-    rbbt-util rbbt-rest rbbt-study rbbt-dm rbbt-text rbbt-sources rbbt-phgx rbbt-GE \
-    tokyocabinet \
-    uglifier therubyracer kramdown\
-    ruby-prof

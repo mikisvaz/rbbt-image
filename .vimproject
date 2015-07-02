@@ -2,8 +2,12 @@ rbbt-vagrant=/$PWD filter="*" {
  README.md
  Vagrantfile
  bin=bin{
-  variables.sh
+  build_provision_sh.rb
+
   ubuntu_setup.sh
+  ruby_setup.sh
+
+  variables.sh
   user_setup.sh
   bootstrap.sh
  }

@@ -1,63 +1,9 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-USER='vagrant'
-SKIP_BASE_SYSTEM=false
+build_script = File.join(File.basename(__FILE__),'bin/build_provision_sh')
+provision_script = "ruby #{build_script}"
 
-VARIABLES={
- :RBBT_LOG => 0,
- :BOOTSTRAP_WORKFLOWS => "Enrichment Translation Sequence MutationEnrichment"
-}
-
-
-provision_script =<<EOF
-cat "$0"
-echo "Running provisioning"
-echo
-
-
-# BASE SYSTEM
-echo "1. Provisioning base system"
-#{File.read("bin/ubuntu_setup.sh") unless SKIP_BASE_SYSTEM}
-
-####################
-# USER CONFIGURATION
-user_script=/home/#{USER}/.rbbt/bin/provision
-mkdir -p $(dirname $user_script)
-chown -R #{USER} /home/#{USER}/.rbbt/
-cat > $user_script <<'EUSER'
-
-echo "2.1. Custom variables"
-#{
-  VARIABLES.collect do |variable,value|
-    "export " << ([variable,'"' << value.to_s << '"'] * "=")
-  end * "\n"
-}
-
-echo "2.2. Default variables"
-#{ File.read("bin/variables.sh") }
- 
-echo "2.3. Configuring rbbt"
-#{File.read("bin/user_setup.sh")}
-  
-echo "2.4. Bootstrap system"
-#{File.read("bin/bootstrap.sh")}
-
-EUSER
-####################
-echo "2. Running user configuration as '#{USER}'"
-chown #{USER} $user_script; 
-su -l -c "bash $user_script" #{USER}
-
-# DONE
-echo 
-echo "Installation done."
-
-#--------------------------------------------------------
-
-EOF
-
-# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -103,6 +49,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
+  #
+  #
+  
+  Vagrant.configure("2") do |config|
+        config.vm.provider "docker" do |d|
+            d.image = "ubuntu:14.04.2"
+        end
+  end
   #
   # config.vm.provider :virtualbox do |vb|
   #   # Don't boot with headless mode

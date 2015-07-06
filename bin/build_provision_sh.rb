@@ -4,6 +4,7 @@
 
 require 'rbbt-util'
 require 'rbbt/util/simpleopt'
+require 'rbbt/util/cmd'
 
 $0 = "rbbt #{$previous_commands*""} #{ File.basename(__FILE__) }" if $previous_commands
 
@@ -12,8 +13,6 @@ options = SOPT.setup <<EOF
 Build a provision script
 
 $ #{$0} [options]
-
-Use - to read from STDIN
 
 -h--help Print this help
 -u--user* System user to bootstrap
@@ -27,7 +26,9 @@ Use - to read from STDIN
 -sr--skip_ruby Skip ruby setup installation
 -sb--skip_bootstrap Skip user bootstrap
 -c--concurrent Prepare system for high-concurrency
--dk--docker* Build docker image using the provided name
+-dt--docker* Build docker image using the provided name
+-df--docker_file* Use a Dockerfile different than the default
+-dd--docker_dependency* Use a different image in the Dockerfile FROM
 EOF
 if options[:help]
   if defined? rbbt_usage
@@ -38,7 +39,7 @@ if options[:help]
   end
 end
 
-USER = options[:user] || 'vagrant'
+USER = options[:user] || 'rbbt'
 SKIP_BASE_SYSTEM = options[:skip_base_system]
 SKIP_RUBY = options[:skip_ruby]
 SKIP_BOOT = options[:skip_bootstrap]
@@ -119,14 +120,36 @@ echo "Installation done."
 
 EOF
 
+docker_dependency = options[:docker_dependency]
+
 if options[:docker]
-  dockerfile = File.join(File.dirname(File.dirname(__FILE__)), 'Dockerfile')
-  TmpFile.with_file do |dir|
+  dockerfile = options[:dockerfile] || File.join(File.dirname(File.dirname(__FILE__)), 'Dockerfile')
+  dockerfile_text = Open.read(dockerfile)
+  dockerfile_text.sub!(/^FROM.*/,'FROM ' + docker_dependency) if docker_dependency
+  TmpFile.with_file(nil, false) do |dir|
     FileUtils.mkdir_p dir
     Path.setup(dir)
-    FileUtils.cp dockerfile, dir["Dockerfile"].find
+    Open.write(dir["Dockerfile"].find, dockerfile_text)
     Open.write(dir['provision.sh'], provision_script)
-    `docker build -t #{options[:docker]} "#{dir}"`
+
+    puts
+    puts "provision.sh"
+    puts "=========="
+    puts provision_script
+
+    puts
+    puts "Dockerfile"
+    puts "=========="
+    puts dockerfile_text
+
+    puts
+    puts "RUN"
+    puts "=========="
+    puts "docker build -t #{options[:docker]} '#{dir}'"
+    io = CMD.cmd("docker build -t #{options[:docker]} '#{dir}'", :pipe => true, :log => true)
+    while line = io.gets
+      puts line
+    end
   end
 else
   puts provision_script

@@ -1,14 +1,17 @@
 rbbt-vagrant=/$PWD filter="*" {
+ Dockerfile
  README.md
  Vagrantfile
  bin=bin{
   build_provision_sh.rb
-
-  ubuntu_setup.sh
-  ruby_setup.sh
-
-  variables.sh
-  user_setup.sh
-  bootstrap.sh
+ }
+ share=share{
+  provision_scripts=provision_scripts filter="*"{
+   bootstrap.sh
+   ruby_setup.sh
+   ubuntu_setup.sh
+   user_setup.sh
+   variables.sh
+  }
  }
 }

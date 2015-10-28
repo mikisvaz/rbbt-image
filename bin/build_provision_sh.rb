@@ -16,7 +16,7 @@ $ #{$0} [options]
 
 -h--help Print this help
 -u--user* System user to bootstrap
--w--workflow* Workflows to bootstrap
+-w--workflow* Workflows to bootstrap (has defaults specify 'none' to avoid them)
 -s--server* Main Rbbt remote server (file-server and workflow server)
 -fs--file_server* Rbbt remote file server
 -ws--workflow_server* Rbbt remote workflow server
@@ -24,6 +24,7 @@ $ #{$0} [options]
 -rw--remote_workflows* Remote workflows server from workflow-server
 -ss--skip_base_system Skip base system installation
 -sr--skip_ruby Skip ruby setup installation
+-su--skip_user_setup Skip user setup
 -sb--skip_bootstrap Skip user bootstrap
 -c--concurrent Prepare system for high-concurrency
 -dt--docker* Build docker image using the provided name
@@ -43,17 +44,20 @@ USER = options[:user] || 'rbbt'
 SKIP_BASE_SYSTEM = options[:skip_base_system]
 SKIP_RUBY = options[:skip_ruby]
 SKIP_BOOT = options[:skip_bootstrap]
+SKIP_USER = options[:skip_user_setup]
 
 VARIABLES={
  :RBBT_LOG => 0,
- :BOOTSTRAP_WORKFLOWS => (options[:workflow] || "Enrichment Translation Sequence MutationEnrichment").split(/[\s,]+/)*" "
+ :BOOTSTRAP_WORKFLOWS => (options[:workflow] || "Enrichment Translation Sequence MutationEnrichment").split(/[\s,]+/)*" ",
+ :REMOTE_RESOURCES => (options[:remote_resources] || "KEGG").split(/[\s,]+/)*" "
 }
+
+VARIABLES[:BOOTSTRAP_WORKFLOWS] = "" if VARIABLES[:BOOTSTRAP_WORKFLOWS] == 'none'
 
 VARIABLES[:RBBT_NO_LOCKFILE_ID] = "true" if options[:concurrent]
 VARIABLES[:RBBT_SERVER] = options[:server] if options[:server]
 VARIABLES[:RBBT_FILE_SERVER] = options[:file_server] if options[:file_server]
 VARIABLES[:RBBT_WORKFLOW_SERVER] = options[:workflow_server] if options[:workflow_server]
-VARIABLES[:REMOTE_RESOURCES] = options[:remote_resources].split(/[\s,]+/)*" " if options[:remote_resources]
 VARIABLES[:REMOTE_WORKFLOWS] = options[:remote_workflows].split(/[\s,]+/)*" " if options[:remote_workflows]
 
 
@@ -65,13 +69,13 @@ echo
 
 # BASE SYSTEM
 echo "1. Provisioning base system"
-#{File.read("bin/ubuntu_setup.sh") unless SKIP_BASE_SYSTEM}
+#{File.read("share/provision_scripts/ubuntu_setup.sh") unless SKIP_BASE_SYSTEM}
 
 # BASE SYSTEM
 echo "2. Setting up ruby"
-#{File.read("bin/ruby_setup.sh") unless SKIP_RUBY}
+#{File.read("share/provision_scripts/ruby_setup.sh") unless SKIP_RUBY}
 
-#{"exit" if SKIP_BOOT}
+#{"exit" if SKIP_USER}
 
 ####################
 # USER CONFIGURATION
@@ -98,13 +102,15 @@ echo "2.1. Custom variables"
 }
 
 echo "2.2. Default variables"
-#{ File.read("bin/variables.sh") }
+#{ File.read("share/provision_scripts/variables.sh") }
 
 echo "2.3. Configuring rbbt"
-#{File.read("bin/user_setup.sh")}
+#{File.read("share/provision_scripts/user_setup.sh")}
+
+#{"exit" if SKIP_BOOT}
 
 echo "2.4. Bootstrap system"
-#{File.read("bin/bootstrap.sh")}
+#{File.read("share/provision_scripts/bootstrap.sh")}
 
 EUSER
 ####################

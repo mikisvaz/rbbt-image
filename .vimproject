@@ -4,6 +4,7 @@ rbbt-vagrant=/$PWD filter="*" {
  Vagrantfile
  bin=bin{
   build_provision_sh.rb
+  run_rbbt_docker.rb
  }
  share=share{
   provision_scripts=provision_scripts filter="*"{

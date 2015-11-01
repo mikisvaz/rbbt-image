@@ -40,11 +40,11 @@ if options[:help] or infrastructure_file.nil?
 end
 
 cmd_args = []
-while args[0] != '--'
+while args.any? and args[0] != '--'
   cmd_args << args.shift
 end
 
-docker_args = args[1..-1]
+docker_args = args[1..-1] || []
 
 cmd_args.collect!{|a| '"' << a << '"' }
 docker_args.collect!{|a| '"' << a << '"' }
@@ -83,9 +83,10 @@ cmd_str += " --log #{Log.severity} " if cmd =~  / rbbt$/
 cmd_str += "'" 
 
 Log.info "Docker: \n" << cmd_str
-io = CMD.cmd(cmd_str, :pipe => true, :log => true, :stderr => 0)
-
-while line = io.gets
-  puts line
-end
+exec(cmd_str)
+#io = CMD.cmd(cmd_str, :pipe => true, :log => true, :stderr => 0)
+#
+#while line = io.gets
+#  puts line
+#end
 

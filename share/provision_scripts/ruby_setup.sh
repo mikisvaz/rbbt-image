@@ -32,3 +32,8 @@ gem install --no-ri --no-rdoc --force \
     rserve-client \
     uglifier therubyracer kramdown\
     ruby-prof
+
+# Get good version of lockfile
+wget http://ubio.bioinfo.cnio.es/people/mvazquezg/lockfile-2.1.4.gem -O /tmp/lockfile-2.1.4.gem
+gem install /tmp/lockfile-2.1.4.gem
+

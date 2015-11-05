@@ -10,7 +10,7 @@ begin
     gem.email = "miguel.vazquez@cnio.es"
     gem.homepage = "http://github.com/mikisvaz/rbbt-image"
     gem.authors = ["Miguel Vazquez"]
-    gem.files = Dir['lib/**/*.rb', 'share/**/*.rb', 'LICENSE']
+    gem.files = Dir['lib/.keep', 'share/**/*.rb', 'LICENSE']
     gem.executables = ['build_rbbt_provision_sh.rb', 'run_rbbt_docker.rb']
     gem.test_files = Dir['test/**/test_*.rb']
 

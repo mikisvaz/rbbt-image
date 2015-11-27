@@ -1,15 +1,16 @@
-rbbt-vagrant=/$PWD filter="*" {
+rbbt-image=/$PWD filter="*" {
  Dockerfile
  README.md
  Vagrantfile
  bin=bin{
-  build_provision_sh.rb
+  build_rbbt_provision_sh.rb
   run_rbbt_docker.rb
  }
  share=share{
   provision_scripts=provision_scripts filter="*"{
    bootstrap.sh
    ruby_setup.sh
+   gem_setup.sh
    ubuntu_setup.sh
    user_setup.sh
    variables.sh

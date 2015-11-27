@@ -24,12 +24,14 @@ $ #{$0} [options]
 -rw--remote_workflows* Remote workflows server from workflow-server
 -ss--skip_base_system Skip base system installation
 -sr--skip_ruby Skip ruby setup installation
+-sg--skip_gem Skip ruby gem installation
 -su--skip_user_setup Skip user setup
 -sb--skip_bootstrap Skip user bootstrap
 -c--concurrent Prepare system for high-concurrency
 -dt--docker* Build docker image using the provided name
 -df--docker_file* Use a Dockerfile different than the default
 -dd--docker_dependency* Use a different image in the Dockerfile FROM
+-v--volumnes* List of volumes to set-up
 EOF
 if options[:help]
   if defined? rbbt_usage
@@ -45,6 +47,7 @@ SKIP_BASE_SYSTEM = options[:skip_base_system]
 SKIP_RUBY = options[:skip_ruby]
 SKIP_BOOT = options[:skip_bootstrap]
 SKIP_USER = options[:skip_user_setup]
+SKIP_GEM = options[:skip_gem]
 
 VARIABLES={
  :RBBT_LOG => 0,
@@ -74,6 +77,10 @@ echo "1. Provisioning base system"
 # BASE SYSTEM
 echo "2. Setting up ruby"
 #{File.read("share/provision_scripts/ruby_setup.sh") unless SKIP_RUBY}
+
+# BASE SYSTEM
+echo "2. Setting up gems"
+#{File.read("share/provision_scripts/gem_setup.sh") unless SKIP_GEM}
 
 #{"exit" if SKIP_USER}
 
@@ -132,6 +139,10 @@ if options[:docker]
   dockerfile = options[:dockerfile] || File.join(File.dirname(File.dirname(__FILE__)), 'Dockerfile')
   dockerfile_text = Open.read(dockerfile)
   dockerfile_text.sub!(/^FROM.*/,'FROM ' + docker_dependency) if docker_dependency
+  if options[:volumnes]
+    volumnes = options[:volumnes].split(/\s*[,|]\s*/).collect{|d| "VOLUME " << d} * "\n"
+    dockerfile_text.sub!(/^RUN/, volumnes + "\nRUN")
+  end
   TmpFile.with_file(nil, false) do |dir|
     FileUtils.mkdir_p dir
     Path.setup(dir)

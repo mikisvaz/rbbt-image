@@ -9,7 +9,7 @@ options = SOPT.setup <<EOF
 
 Runs a docker image from an infrastructure definition file
 
-$ #{ $0 } [options] <infrastructure.yaml> <command> <args> -- <extra docker options>
+$ #{ $0 } [<options>] <infrastructure.yaml> <command> <args> [-- <extra docker options>]
 
 Infrastruture definition comes in YAML
 

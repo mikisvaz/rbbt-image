@@ -42,6 +42,8 @@ if options[:help]
   end
 end
 
+root_dir = File.dirname(File.dirname(File.expand_path(__FILE__)))
+
 USER = options[:user] || 'rbbt'
 SKIP_BASE_SYSTEM = options[:skip_base_system]
 SKIP_RUBY = options[:skip_ruby]
@@ -72,15 +74,15 @@ echo
 
 # BASE SYSTEM
 echo "1. Provisioning base system"
-#{File.read("share/provision_scripts/ubuntu_setup.sh") unless SKIP_BASE_SYSTEM}
+#{File.read(File.join(root_dir, "share/provision_scripts/ubuntu_setup.sh")) unless SKIP_BASE_SYSTEM}
 
 # BASE SYSTEM
 echo "2. Setting up ruby"
-#{File.read("share/provision_scripts/ruby_setup.sh") unless SKIP_RUBY}
+#{File.read(File.join(root_dir, "share/provision_scripts/ruby_setup.sh")) unless SKIP_RUBY}
 
 # BASE SYSTEM
 echo "2. Setting up gems"
-#{File.read("share/provision_scripts/gem_setup.sh") unless SKIP_GEM}
+#{File.read(File.join(root_dir, "share/provision_scripts/gem_setup.sh")) unless SKIP_GEM}
 
 #{"exit" if SKIP_USER}
 
@@ -109,15 +111,15 @@ echo "2.1. Custom variables"
 }
 
 echo "2.2. Default variables"
-#{ File.read("share/provision_scripts/variables.sh") }
+#{ File.read(File.join(root_dir, "share/provision_scripts/variables.sh")) }
 
 echo "2.3. Configuring rbbt"
-#{File.read("share/provision_scripts/user_setup.sh")}
+#{File.read(File.join(root_dir, "share/provision_scripts/user_setup.sh"))}
 
 #{"exit" if SKIP_BOOT}
 
 echo "2.4. Bootstrap system"
-#{File.read("share/provision_scripts/bootstrap.sh")}
+#{File.read(File.join(root_dir, "share/provision_scripts/bootstrap.sh"))}
 
 EUSER
 ####################
@@ -136,7 +138,7 @@ EOF
 docker_dependency = options[:docker_dependency]
 
 if options[:docker]
-  dockerfile = options[:dockerfile] || File.join(File.dirname(File.dirname(__FILE__)), 'Dockerfile')
+  dockerfile = options[:dockerfile] || File.join(root_dir, 'Dockerfile')
   dockerfile_text = Open.read(dockerfile)
   dockerfile_text.sub!(/^FROM.*/,'FROM ' + docker_dependency) if docker_dependency
   if options[:volumnes]

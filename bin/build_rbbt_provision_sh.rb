@@ -229,6 +229,7 @@ if options[:docker]
   dockerfile_text = Open.read(dockerfile)
   dockerfile_text.sub!(/^FROM.*/,'FROM ' + docker_dependency) if docker_dependency
   dockerfile_text.sub!(/^USER rbbt/,'USER ' + USER) if USER != 'rbbt'
+  dockerfile_text.sub!(/^ENV HOME \/home\/rbbt/,'ENV HOME /home/' + USER) if USER != 'rbbt'
   if options[:volumnes]
     volumnes = options[:volumnes].split(/\s*[,|]\s*/).collect{|d| "VOLUME " << d} * "\n"
     dockerfile_text.sub!(/^RUN/, volumnes + "\nRUN")

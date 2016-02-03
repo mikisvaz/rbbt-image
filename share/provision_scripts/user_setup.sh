@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
-# GENERAL
-# -------
+# USER RBBT CONFIG
+# ================
 
 # File servers: to speed up the production of some resources
 for resource in $REMOTE_RESOURCES; do

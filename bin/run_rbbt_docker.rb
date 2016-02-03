@@ -84,9 +84,3 @@ cmd_str += "'"
 
 Log.info "Docker: \n" << cmd_str
 exec(cmd_str)
-#io = CMD.cmd(cmd_str, :pipe => true, :log => true, :stderr => 0)
-#
-#while line = io.gets
-#  puts line
-#end
-

@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
-# APP
-# ---
+# USER RBBT BOOTSTRAP
+# ===================
 
 for workflow in $WORKFLOWS; do
     rbbt workflow install $workflow 

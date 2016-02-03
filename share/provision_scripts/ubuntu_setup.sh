@@ -24,4 +24,3 @@ grep R_HOME /etc/profile || echo "export R_HOME='/usr/lib/R' # For Ruby's RSRuby
 # This link was broken for some reason
 rm /usr/lib/R/bin/Rserve
 ln -s /usr/lib/R/site-library/Rserve/libs/Rserve /usr/lib/R/bin/Rserve
-

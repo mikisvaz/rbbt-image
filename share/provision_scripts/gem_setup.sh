@@ -1,7 +1,8 @@
 #!/bin/bash -x
 
-# Ruby gems and Rbbt
-# -------------------------
+# RUBY GEMS and RBBT
+# =================
+
 export REALLY_GEM_UPDATE_SYSTEM=true
 env REALLY_GEM_UPDATE_SYSTEM=true gem update --system
 gem install --force ZenTest

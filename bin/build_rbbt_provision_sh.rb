@@ -2,11 +2,14 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+
 require 'rbbt-util'
 require 'rbbt/util/simpleopt'
 require 'rbbt/util/cmd'
 
 $0 = "rbbt #{$previous_commands*""} #{ File.basename(__FILE__) }" if $previous_commands
+
+orig_argv = ARGV.dup
 
 options = SOPT.setup <<EOF
 
@@ -28,10 +31,13 @@ $ #{$0} [options]
 -su--skip_user_setup Skip user setup
 -sb--skip_bootstrap Skip user bootstrap
 -c--concurrent Prepare system for high-concurrency
+-op--optimize Optimize files under ~/.rbbt
 -dt--docker* Build docker image using the provided name
 -df--docker_file* Use a Dockerfile different than the default
 -dd--docker_dependency* Use a different image in the Dockerfile FROM
 -v--volumnes* List of volumes to set-up
+--nocolor Prevent rbbt from using colors and control sequences in the logs while provisioning
+--nobar Prevent rbbt from using progress bars while provisioning
 EOF
 if options[:help]
   if defined? rbbt_usage
@@ -43,6 +49,7 @@ if options[:help]
 end
 
 root_dir = File.dirname(File.dirname(File.expand_path(__FILE__)))
+script_dir = File.join(root_dir, "share/provision_scripts/")
 
 USER = options[:user] || 'rbbt'
 SKIP_BASE_SYSTEM = options[:skip_base_system]
@@ -50,6 +57,7 @@ SKIP_RUBY = options[:skip_ruby]
 SKIP_BOOT = options[:skip_bootstrap]
 SKIP_USER = options[:skip_user_setup]
 SKIP_GEM = options[:skip_gem]
+OPTIMIZE = options[:optimize]
 
 VARIABLES={
  :RBBT_LOG => 0,
@@ -64,28 +72,55 @@ VARIABLES[:RBBT_SERVER] = options[:server] if options[:server]
 VARIABLES[:RBBT_FILE_SERVER] = options[:file_server] if options[:file_server]
 VARIABLES[:RBBT_WORKFLOW_SERVER] = options[:workflow_server] if options[:workflow_server]
 VARIABLES[:REMOTE_WORKFLOWS] = options[:remote_workflows].split(/[\s,]+/)*" " if options[:remote_workflows]
+VARIABLES[:RBBT_NOCOLOR] = "true" if options[:nocolor]
+VARIABLES[:RBBT_NO_PROGRESS] = "true" if options[:nobar]
 
 
-provision_script =<<EOF
-cat "$0"
-echo "Running provisioning"
+provision_script =<<-EOF
+#!/bin/bash -x
+
+echo "RUNNING PROVISION"
 echo
+echo "CMD: #{File.basename($0) + " " + orig_argv.collect{|a| a =~ /\s/ ? "\'#{a}\'" : a }.join(" ")}"
 
+EOF
 
-# BASE SYSTEM
+provision_script +=<<-EOF
 echo "1. Provisioning base system"
-#{File.read(File.join(root_dir, "share/provision_scripts/ubuntu_setup.sh")) unless SKIP_BASE_SYSTEM}
+#{
+if not SKIP_BASE_SYSTEM
+  File.read(script_dir + 'ubuntu_setup.sh') 
+else
+  "echo SKIPPED\necho"
+end 
+}
 
-# BASE SYSTEM
 echo "2. Setting up ruby"
-#{File.read(File.join(root_dir, "share/provision_scripts/ruby_setup.sh")) unless SKIP_RUBY}
+#{
+if not SKIP_RUBY
+  File.read(script_dir + 'ruby_setup.sh') 
+else
+  "echo SKIPPED\necho"
+end 
+}
 
-# BASE SYSTEM
-echo "2. Setting up gems"
-#{File.read(File.join(root_dir, "share/provision_scripts/gem_setup.sh")) unless SKIP_GEM}
+echo "3. Setting up gems"
+#{
+if not SKIP_GEM
+  File.read(script_dir + 'gem_setup.sh') 
+else
+  "echo SKIPPED\necho"
+end 
+}
 
-#{"exit" if SKIP_USER}
+EOF
 
+provision_script +=<<-EOF
+echo "4. Configuring user"
+EOF
+
+if not SKIP_USER
+  provision_script +=<<-EOF
 ####################
 # USER CONFIGURATION
 
@@ -96,43 +131,95 @@ else
   home_dir='/home/#{USER}'
 fi
 
-user_script=$home_dir/.rbbt/bin/provision
+user_script=$home_dir/.rbbt/bin/config_user
 mkdir -p $(dirname $user_script)
 chown -R #{USER} /home/#{USER}/.rbbt/
+
+
+# set user configuration script
 cat > $user_script <<'EUSER'
 
 . /etc/profile
 
-echo "2.1. Custom variables"
+echo "4.1. Loading custom variables"
 #{
   VARIABLES.collect do |variable,value|
     "export " << ([variable,'"' << value.to_s << '"'] * "=")
   end * "\n"
 }
 
-echo "2.2. Default variables"
-#{ File.read(File.join(root_dir, "share/provision_scripts/variables.sh")) }
+echo "4.2. Loading default variables"
+#{File.read(script_dir + 'variables.sh')}
 
-echo "2.3. Configuring rbbt"
-#{File.read(File.join(root_dir, "share/provision_scripts/user_setup.sh"))}
-
-#{"exit" if SKIP_BOOT}
-
-echo "2.4. Bootstrap system"
-#{File.read(File.join(root_dir, "share/provision_scripts/bootstrap.sh"))}
-
+echo "4.3. Configuring rbbt"
+#{File.read(script_dir + 'user_setup.sh')}
 EUSER
-####################
-echo "2. Running user configuration as '#{USER}'"
+
+echo "4.4. Running user configuration as '#{USER}'"
 chown #{USER} $user_script;
 su -l -c "bash $user_script" #{USER}
 
-# DONE
+  EOF
+else
+  provision_script += "echo SKIPPED\necho\n\n"
+end
+
+provision_script +=<<-EOF
+echo "5. Bootstrapping workflows as '#{USER}'"
+echo
+EOF
+
+if not SKIP_BOOT
+  provision_script +=<<-EOF
+
+if [[ '#{ USER }' == 'root' ]] ; then
+  home_dir='/root'
+else
+  home_dir='/home/#{USER}'
+fi
+
+user_script=$home_dir/.rbbt/bin/bootstrap
+
+cat > $user_script <<'EUSER'
+
+. /etc/profile
+
+echo "5.1. Loading custom variables"
+#{
+  VARIABLES.collect do |variable,value|
+    "export " << ([variable,'"' << value.to_s << '"'] * "=")
+  end * "\n"
+}
+
+echo "5.2. Loading default variables"
+#{File.read(script_dir + 'variables.sh')}
+
+echo "5.3. Configuring rbbt"
+#{File.read(script_dir + 'user_setup.sh')}
+#
+echo "5.4. Install and bootstrap"
+#{File.read(script_dir + "bootstrap.sh")}
+EUSER
+
+chown #{USER} $user_script;
+su -l -c "bash $user_script" #{USER}
+
+  EOF
+else
+  provision_script += "echo SKIPPED\necho\n\n"
+end
+
+provision_script +=<<-EOF
+# CODA
+# ====
+
+apt-get clean
+rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+#{ "su -l -c 'rbbt system optimize /home/#{USER}/.rbbt ' #{USER}" if OPTIMIZE}
+
 echo
 echo "Installation done."
-
-#--------------------------------------------------------
-
 EOF
 
 docker_dependency = options[:docker_dependency]
@@ -141,6 +228,7 @@ if options[:docker]
   dockerfile = options[:dockerfile] || File.join(root_dir, 'Dockerfile')
   dockerfile_text = Open.read(dockerfile)
   dockerfile_text.sub!(/^FROM.*/,'FROM ' + docker_dependency) if docker_dependency
+  dockerfile_text.sub!(/^USER rbbt/,'USER ' + USER) if USER != 'rbbt'
   if options[:volumnes]
     volumnes = options[:volumnes].split(/\s*[,|]\s*/).collect{|d| "VOLUME " << d} * "\n"
     dockerfile_text.sub!(/^RUN/, volumnes + "\nRUN")
@@ -151,19 +239,8 @@ if options[:docker]
     Open.write(dir["Dockerfile"].find, dockerfile_text)
     Open.write(dir['provision.sh'], provision_script)
 
-    puts
-    puts "provision.sh"
-    puts "=========="
-    puts provision_script
-
-    puts
-    puts "Dockerfile"
-    puts "=========="
-    puts dockerfile_text
-
-    puts
     puts "RUN"
-    puts "=========="
+    puts "==="
     puts "docker build -t #{options[:docker]} '#{dir}'"
     io = CMD.cmd("docker build -t #{options[:docker]} '#{dir}'", :pipe => true, :log => true)
     while line = io.gets

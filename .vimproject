@@ -8,12 +8,12 @@ rbbt-image=/$PWD filter="*" {
  }
  share=share{
   provision_scripts=provision_scripts filter="*"{
-   bootstrap.sh
+   ubuntu_setup.sh
    ruby_setup.sh
    gem_setup.sh
-   ubuntu_setup.sh
    user_setup.sh
    variables.sh
+   bootstrap.sh
   }
  }
 }

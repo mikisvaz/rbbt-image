@@ -1,4 +1,5 @@
 rbbt-image=/$PWD filter="*" {
+ Rakefile
  Dockerfile
  README.md
  Vagrantfile

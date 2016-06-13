@@ -1,8 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-build_script = File.join(File.basename(__FILE__),'bin/build_provision_sh')
-provision_script = "ruby #{build_script}"
+build_script = File.join(File.basename(__FILE__), 'bin/build_rbbt_provision_sh')
+provision_script = `ruby #{build_script}`
 
 VAGRANTFILE_API_VERSION = "2"
 

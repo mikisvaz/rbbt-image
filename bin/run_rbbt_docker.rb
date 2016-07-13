@@ -61,7 +61,8 @@ IndiferentHash.setup(infrastructure)
 image = infrastructure[:image]
 
 if user = infrastructure[:user]
-  user_conf = "-u #{user} -e HOME=/home/#{user}/ "
+  user_conf = "-u #{user} -e HOME=/home/#{user}/ -e USER=#{user}"
+  user_conf = "-e HOME=/home/#{user}/ -e USER=#{user}"
 else
   user_conf = ""
 end
@@ -69,12 +70,12 @@ end
 mount_conf = ""
 if infrastructure[:mounts]
   infrastructure[:mounts].each do |target,source|
-    target = target.gsub("USER", user)
+    target = target.gsub("USER", user) if target.include? "USER"
     if source.nil? or source.empty?
       mount_conf << " -v #{target}"
     else
       FileUtils.mkdir_p source unless File.directory? source
-      FileUtils.chmod 0777, source
+      #FileUtils.chmod 0777, source
       mount_conf << " -v #{File.expand_path(source)}:#{target}"
     end
   end
@@ -84,8 +85,9 @@ if infrastructure[:workflow_autoinstall] and infrastructure[:workflow_autoinstal
   cmd = "env RBBT_WORKFLOW_AUTOINSTALL=true " + cmd
 end
 
-cmd_str = "docker run #{mount_conf} #{user_conf} #{docker_args*" "} #{image} /bin/bash --login -c '#{cmd} #{cmd_args*" "}"
-cmd_str += " --log #{Log.severity} " if cmd =~  / rbbt$/
+umask = infrastructure[:umask] ? 'umask 000; ' : ''
+cmd_str = "docker run #{mount_conf} #{user_conf} #{docker_args*" "} #{image} /bin/bash --login -c '#{umask}#{cmd} #{cmd_args*" "}"
+cmd_str += " --log #{Log.severity} " if cmd =~  /\brbbt$/
 cmd_str += "'" 
 
 Log.info "Docker: \n" << cmd_str

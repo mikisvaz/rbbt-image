@@ -11,12 +11,13 @@ Runs a docker image from an infrastructure definition file
 
 $ #{ $0 } [<options>] <infrastructure.yaml> <command> <args> [-- <extra docker options>]
 
-Infrastruture definition comes in YAML
+Infrastruture definition comes in YAML. 
 
 -h--help Print this help
 --log* Log level
 
 EOF
+
 
 Log.severity = options[:log].to_i if options[:log]
 
@@ -31,10 +32,15 @@ infrastructure_file, cmd, *args = ARGV
 
 
 if options[:help] or infrastructure_file.nil?
-  if defined? rbbt_usage
+  if false and defined? rbbt_usage
     rbbt_usage 
+    puts Log.color :magenta, "##Example infrastructure.yaml"
+    puts DATA.read
   else
-    puts SOPT.usage
+    puts SOPT.doc
+    puts
+    puts Log.color(:magenta, "##Example infrastructure.yaml")
+    puts DATA.read
   end
   exit 0
 end
@@ -88,3 +94,18 @@ cmd_str += "'"
 
 Log.info "Docker: \n" << cmd_str
 exec(cmd_str)
+
+__END__
+---
+:image: mikisvaz/rbbt-basic
+:user: rbbt
+:umask: true
+:mounts:
+    /usr/local/share/rbbt/organisms: /data2/rbbt/share/organisms
+    /usr/local/share/rbbt/data/studies: /data2/rbbt/share/data/projects/ICGC
+    /usr/local/workflows/rbbt: /home/mvazquezg/git/workflows
+    /usr/local/apps/rbbt: /home/mvazquezg/git/apps
+    /home/USER/.rbbt/var: ./var
+    /home/USER/.rbbt/etc: ./etc
+    /home/USER/.rbbt/var/jobs/Sample: ./Sample
+    /home/USER/.rbbt/var/jobs/Study: ./Study

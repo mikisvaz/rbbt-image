@@ -1,0 +1,16 @@
+image: mikisvaz/rbbt-basic
+user: rbbt
+umask: true
+workflow_autoinstall: true
+mounts:
+    /home/USER/.rbbt: data-container-home-rbbt
+    /home/USER/.rbbt/var/: data-container-home-rbbt-var
+    /home/USER/.rbbt/var/cache/persistence: data-container-home-rbbt-var-cache-persistence
+    /home/USER/.rbbt/share/databases: /data3/rbbt/share/databases
+    /home/USER/.rbbt/share/organisms: /data3/rbbt/share/organisms
+    /home/USER/.rbbt/var/dbNSFP: /data3/rbbt/var/dbNSFP
+    /home/USER/.rbbt/var/DbSNP: /data3/rbbt/var/DbSNP
+    /home/USER/.rbbt/share/data/projects/PCAWG/: /data3/mvazquezg/docker/resources/PCAWG
+    /home/USER/.rbbt/var/jobs: ./.rbbt/var/jobs
+    /home/USER/.rbbt/var/knowledge_bases: ./.rbbt/var/knowledge_bases
+    /home/USER/.rbbt/var/sinatra: ./.rbbt/var/sinatra

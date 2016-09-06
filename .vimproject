@@ -7,6 +7,17 @@ rbbt-image=/$PWD filter="*" {
   build_rbbt_provision_sh.rb
   run_rbbt_docker.rb
  }
+ etc=etc{
+  infrastructure=infrastructure{
+   PCAWG.yaml
+  }
+ }
+
+ lib=lib{
+  rbbt=rbbt{
+   docker.rb
+  }
+ }
  share=share{
   provision_scripts=provision_scripts filter="*"{
    ubuntu_setup.sh

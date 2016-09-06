@@ -31,7 +31,7 @@ module RbbtDocker
               dir = File.join(ssource, File.dirname(subdir))
               if not File.directory? dir
                 FileUtils.mkdir_p dir 
-                FileUtils.chmod 0777, dir
+                FileUtils.chmod_R 0777, File.join(ssource,subdir.split("/").first)
               end
             end
 
@@ -55,11 +55,11 @@ module RbbtDocker
     name_conf = options[:name]
     name_conf = "--name " << name_conf if name_conf
     name_conf ||= ""
-    cmd_str = "docker run #{name_conf} #{mount_conf} #{user_conf} #{docker_args*" "} #{image} /bin/bash --login -c '#{umask}#{cmd} #{cmd_args*" "}"
+    cmd_str = "docker run #{name_conf} #{mount_conf} #{user_conf} #{(docker_args - ["--"])*" "} #{image} /bin/bash --login -c '#{umask}#{cmd} #{cmd_args*" "}"
     cmd_str += " --log #{Log.severity} " if cmd =~  /\brbbt$/
     cmd_str += "'" 
 
-    Log.info "Docker: \n" << cmd_str
+    Log.debug "Docker: \n\n" << cmd_str << "\n\n"
 
     exec(cmd_str) unless options[:dry_run]
   end

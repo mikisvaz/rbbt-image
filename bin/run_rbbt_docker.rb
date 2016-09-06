@@ -68,8 +68,10 @@ if infrastructure[:mounts]
     if source.nil? or source.empty?
       mount_conf << " -v #{target}"
     else
-      FileUtils.mkdir_p source unless File.directory? source
-      #FileUtils.chmod 0777, source
+      if not File.directory? source
+        FileUtils.mkdir_p source 
+        FileUtils.chmod 0777, source
+      end
       mount_conf << " -v #{File.expand_path(source)}:#{target}"
     end
   end

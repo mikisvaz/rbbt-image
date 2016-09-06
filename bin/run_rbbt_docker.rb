@@ -18,6 +18,7 @@ Infrastruture definition comes in YAML.
 --log* Log level
 -d--dry_run Dry run
 -n--name* Container name
+-m--extra_mounts* Extra mounts separated by ','
 EOF
 
 
@@ -58,6 +59,19 @@ cmd_args.collect!{|a| '"' << a << '"' }
 
 infrastructure_file = Rbbt.etc.infrastructure[infrastructure_file+'.yaml'].find unless File.exists? infrastructure_file
 infrastructure = File.open(infrastructure_file){|io| YAML.load io }
+
+IndiferentHash.setup(infrastructure)
+
+if options[:extra_mounts]
+  options[:extra_mounts].split(',').each do |pair|
+    target, _sep, source = pair.partition(":")
+    mounts = infrastructure[:mounts] || {}
+    mounts[target] = source
+    infrastructure[:mounts] = mounts
+  end
+end
+
+
 
 RbbtDocker.load_infrastructure(infrastructure, cmd, cmd_args, docker_args, options)
 

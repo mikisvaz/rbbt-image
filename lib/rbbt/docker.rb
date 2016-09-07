@@ -55,7 +55,7 @@ module RbbtDocker
     name_conf = options[:name]
     name_conf = "--name " << name_conf if name_conf
     name_conf ||= ""
-    cmd_str = "docker run #{name_conf} #{mount_conf} #{user_conf} #{(docker_args - ["--"])*" "} #{image} /bin/bash --login -c '#{umask}#{cmd} #{cmd_args*" "}"
+    cmd_str = "docker run #{name_conf} #{mount_conf} #{user_conf} #{docker_args.select{|arg| arg != '"--"'}*" "} #{image} /bin/bash --login -c '#{umask}#{cmd} #{cmd_args*" "}"
     cmd_str += " --log #{Log.severity} " if cmd =~  /\brbbt$/
     cmd_str += "'" 
 

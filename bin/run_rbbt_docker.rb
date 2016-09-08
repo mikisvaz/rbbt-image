@@ -55,8 +55,6 @@ end
 
 docker_args = args[1..-1] || []
 
-cmd_args.collect!{|a| '"' << a << '"' }
-
 if not File.exists? infrastructure_file
   name = infrastructure_file
   infrastructure_file = Rbbt.root.etc.infrastructure[name+'.yaml'].find

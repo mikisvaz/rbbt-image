@@ -3,7 +3,6 @@ module RbbtDocker
     cmd_args.collect!{|a| '"' << a << '"' }
     docker_args.collect!{|a| '"' << a << '"' }
 
-
     IndiferentHash.setup(infrastructure)
 
     image = infrastructure[:image]

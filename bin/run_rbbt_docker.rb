@@ -18,7 +18,7 @@ Infrastruture definition comes in YAML.
 --log* Log level
 -d--dry_run Dry run
 -n--name* Container name
--m--extra_mounts* Extra mounts separated by ','
+--extra_mounts* Extra mounts separated by ','
 EOF
 
 

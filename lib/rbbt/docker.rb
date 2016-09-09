@@ -52,7 +52,7 @@ module RbbtDocker
     end
 
     umask = infrastructure[:umask] ? 'umask 000; ' : ''
-    name_conf = options[:name]
+    name_conf = options[:container_name]
     name_conf = "--name " << name_conf if name_conf
     name_conf ||= ""
 

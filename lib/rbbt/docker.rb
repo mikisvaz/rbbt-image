@@ -3,6 +3,7 @@ module RbbtDocker
     cmd_args.collect!{|a| '"' << a << '"' }
     docker_args.collect!{|a| '"' << a << '"' }
 
+
     IndiferentHash.setup(infrastructure)
 
     image = infrastructure[:image]
@@ -54,12 +55,18 @@ module RbbtDocker
     name_conf = options[:name]
     name_conf = "--name " << name_conf if name_conf
     name_conf ||= ""
-    cmd_str = "docker run #{name_conf} #{mount_conf} #{user_conf} #{docker_args.select{|arg| arg != '"--"'}*" "} #{image} /bin/bash --login -c '#{umask}#{cmd} #{cmd_args*" "}"
-    cmd_str += " --log #{Log.severity} " if cmd =~  /\brbbt$/
-    cmd_str += "'" 
 
-    Log.debug "Docker: \n\n" << cmd_str << "\n\n"
+    container_command = "#{umask}#{cmd} #{cmd_args*" "}"
+    container_command += " --log #{Log.severity} " if cmd =~  /\brbbt$/
 
-    exec(cmd_str) unless options[:dry_run]
+    cmd_str = "docker run #{name_conf} #{mount_conf} #{user_conf} #{(docker_args - ["--"])*" "} #{Log.color(:green, image)} /bin/bash --login -c '#{Log.color :green, container_command}'"
+
+    if options[:docker_dry_run]
+      puts Log.color(:magenta, "#Docker CMD:") <<  "\n" << cmd_str << "\n"
+    else
+      Log.debug Log.color(:magenta, "#Docker CMD:") <<  "\n" << cmd_str << "\n\n"
+    end
+
+    exec(Log.uncolor(cmd_str)) unless options[:docker_dry_run]
   end
 end

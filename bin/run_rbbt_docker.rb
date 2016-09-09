@@ -12,12 +12,17 @@ Runs a docker image from an infrastructure definition file
 
 $ #{ $0 } [<options>] <infrastructure.yaml> <command> <args> [-- <extra docker options>]
 
-Infrastruture definition comes in YAML. 
+Infrastruture definition comes in YAML. Note that the options listed here will
+be consumed and thus not passed to the container command, with the exception of
+'--log' which applies to both. To get help from the container command use '-ch'
+or '--chelp' which will append the '--help' options to the container command.
+The other options have been named to avoid clashes.
 
 -h--help Print this help
---log* Log level
--d--dry_run Dry run
--n--name* Container name
+-ch--chelp Print help on the container command 
+--log* Log level (both this command and the container command)
+--docker_dry_run Dry run. Just output docker command line
+--container_name* Container name
 --extra_mounts* Extra mounts separated by ','
 EOF
 
@@ -51,6 +56,10 @@ end
 cmd_args = []
 while args.any? and args[0] != '--'
   cmd_args << args.shift
+end
+
+if options[:chelp]
+  cmd_args << '--help'
 end
 
 docker_args = args[1..-1] || []

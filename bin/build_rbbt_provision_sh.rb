@@ -214,7 +214,7 @@ provision_script +=<<-EOF
 # ====
 
 apt-get clean
-rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc /usr/share/man /usr/local/share/ri
 
 #{ "su -l -c 'rbbt system optimize /home/#{USER}/.rbbt ' #{USER}" if OPTIMIZE}
 

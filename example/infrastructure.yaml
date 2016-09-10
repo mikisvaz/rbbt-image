@@ -1,7 +1,17 @@
-image: rbbt:ruby.v4
+image: mikisvaz/rbbt-basic
 user: rbbt
+umnask: true
+workflow_autoinstall: true
 mounts:
-    - /home/USER/.rbbt/share: PCAWG.share
-    - /home/USER/.rbbt/var: PCAWG.var
-    - /home/USER/.rbbt/jobs: PCAWG.jobs
-    - /home/USER/.rbbt/share/data/studies: PCAWG.studies
+    # Home rbbt directory
+    /home/USER/.rbbt/: ./rbbt
+    # Avoid rebuilding the C inline code
+    /home/USER/.ruby_inline/: ./rbbt/.ruby_inline
+    # Common docker resources
+    #/usr/local/share/rbbt: ../resources/rbbt/share
+    #/usr/local/var/rbbt: ../resources/rbbt/var
+    # Other bulk files
+    #/bulk/share/rbbt: /mnt/bulk/rbbt/share
+    #/bulk/var/rbbt: /mnt/bulk/rbbt/var
+    # Fast cache file
+    #/fast/var/rbbt: /mnt/fast/rbbt/var

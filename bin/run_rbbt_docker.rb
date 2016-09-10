@@ -40,17 +40,15 @@ infrastructure_file, cmd, *args = ARGV
 
 
 if options[:help] or infrastructure_file.nil?
-  if false and defined? rbbt_usage
-    rbbt_usage 
-    puts Log.color :magenta, "##Example infrastructure.yaml"
-    puts DATA.read
+  puts SOPT.doc
+  puts
+  puts Log.color(:magenta, "## Example infrastructure.yaml")
+  puts Rbbt.example["infrastructure.yaml"].read
+  if options[:help]
+    exit 0
   else
-    puts SOPT.doc
-    puts
-    puts Log.color(:magenta, "##Example infrastructure.yaml")
-    puts DATA.read
+    exit -1
   end
-  exit 0
 end
 
 cmd_args = []

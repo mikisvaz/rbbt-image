@@ -1,4 +1,3 @@
-
 rbbt-image=/$PWD filter="*" {
  Rakefile
  Dockerfile

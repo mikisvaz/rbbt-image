@@ -52,14 +52,14 @@ module RbbtDocker
     end
 
     umask = infrastructure[:umask] ? 'umask 000; ' : ''
-    name_conf = options[:name]
+    name_conf = options[:container_name]
     name_conf = "--name " << name_conf if name_conf
     name_conf ||= ""
 
     container_command = "#{umask}#{cmd} #{cmd_args*" "}"
     container_command += " --log #{Log.severity} " if cmd =~  /\brbbt$/
 
-    cmd_str = "docker run #{name_conf} #{mount_conf} #{user_conf} #{(docker_args - ["--"])*" "} #{Log.color(:green, image)} /bin/bash --login -c '#{Log.color :green, container_command}'"
+    cmd_str = "docker run #{name_conf} #{mount_conf} #{user_conf} #{(docker_args - ['"--"'])*" "} #{Log.color(:green, image)} /bin/bash --login -c '#{Log.color :green, container_command}'"
 
     if options[:docker_dry_run]
       puts Log.color(:magenta, "#Docker CMD:") <<  "\n" << cmd_str << "\n"

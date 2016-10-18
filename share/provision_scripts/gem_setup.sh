@@ -28,3 +28,5 @@ gem install --no-ri --no-rdoc --force \
 wget http://ubio.bioinfo.cnio.es/people/mvazquezg/lockfile-2.1.4.gem -O /tmp/lockfile-2.1.4.gem
 gem install --no-ri --no-rdoc /tmp/lockfile-2.1.4.gem
 
+# Extra things for web interface
+gem install --no-ri --no-rdoc bio-svgenes

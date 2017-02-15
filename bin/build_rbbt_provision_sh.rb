@@ -30,6 +30,8 @@ $ #{$0} [options]
 -sg--skip_gem Skip ruby gem installation
 -su--skip_user_setup Skip user setup
 -sb--skip_bootstrap Skip user bootstrap
+-Rc--R_custom Install a custom installation of R
+-Rp--R_packages Install basic R packages
 -c--concurrent Prepare system for high-concurrency
 -op--optimize Optimize files under ~/.rbbt
 -dt--docker* Build docker image using the provided name
@@ -54,6 +56,7 @@ script_dir = File.join(root_dir, "share/provision_scripts/")
 USER = options[:user] || 'rbbt'
 SKIP_BASE_SYSTEM = options[:skip_base_system]
 SKIP_RUBY = options[:skip_ruby]
+R_CUSTOM = options[:R_custom]
 SKIP_BOOT = options[:skip_bootstrap]
 SKIP_USER = options[:skip_user_setup]
 SKIP_GEM = options[:skip_gem]
@@ -82,6 +85,9 @@ provision_script =<<-EOF
 echo "RUNNING PROVISION"
 echo
 echo "CMD: #{File.basename($0) + " " + orig_argv.collect{|a| a =~ /\s/ ? "\'#{a}\'" : a }.join(" ")}"
+echo
+echo -n "Starting: "
+date
 
 EOF
 
@@ -95,7 +101,14 @@ else
 end 
 }
 
-echo "2. Setting up ruby"
+#{
+if not SKIP_BASE_SYSTEM and R_CUSTOM
+  "echo 1.1 Setting custom R"
+  File.read(script_dir + 'R_setup.sh') 
+end 
+}
+
+echo "3. Setting up ruby"
 #{
 if not SKIP_RUBY
   File.read(script_dir + 'ruby_setup.sh') 
@@ -104,7 +117,7 @@ else
 end 
 }
 
-echo "3. Setting up gems"
+echo "3.1. Setting up gems"
 #{
 if not SKIP_GEM
   File.read(script_dir + 'gem_setup.sh') 
@@ -220,6 +233,8 @@ rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc /usr/share/man /usr
 
 echo
 echo "Installation done."
+date
+
 EOF
 
 docker_dependency = options[:docker_dependency]
@@ -233,6 +248,9 @@ if options[:docker]
   if options[:volumnes]
     volumnes = options[:volumnes].split(/\s*[,|]\s*/).collect{|d| "VOLUME " << d} * "\n"
     dockerfile_text.sub!(/^RUN/, volumnes + "\nRUN")
+  end
+  if options[:R_packages]
+    dockerfile_text.sub!(/^(# END PROVISION)/, '\1' + "\n" + Open.read(File.join(script_dir, 'Dockerfile.R-packages')) + "\n" )
   end
   TmpFile.with_file(nil, false) do |dir|
     FileUtils.mkdir_p dir

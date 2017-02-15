@@ -22,10 +22,12 @@ rbbt-image=/$PWD filter="*" {
   provision_scripts=provision_scripts filter="*"{
    ubuntu_setup.sh
    ruby_setup.sh
+   R_setup.sh
    gem_setup.sh
    user_setup.sh
    variables.sh
    bootstrap.sh
+   Dockerfile.R-packages
   }
  }
 }

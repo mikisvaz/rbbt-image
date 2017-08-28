@@ -37,10 +37,12 @@ $ #{$0} [options]
 -dt--docker* Build docker image using the provided name
 -df--docker_file* Use a Dockerfile different than the default
 -dd--docker_dependency* Use a different image in the Dockerfile FROM
+-si--singularity* Build singularity image using the provided name
 -v--volumnes* List of volumes to set-up
 --nocolor Prevent rbbt from using colors and control sequences in the logs while provisioning
 --nobar Prevent rbbt from using progress bars while provisioning
 EOF
+
 if options[:help]
   if defined? rbbt_usage
     rbbt_usage and exit 0 
@@ -52,6 +54,11 @@ end
 
 root_dir = File.dirname(File.dirname(File.expand_path(__FILE__)))
 script_dir = File.join(root_dir, "share/provision_scripts/")
+
+if options[:singularity]
+  options[:skip_user_setup] = true
+  options[:skip_bootstrap] = true
+end
 
 USER = options[:user] || 'rbbt'
 SKIP_BASE_SYSTEM = options[:skip_base_system]
@@ -268,5 +275,46 @@ if options[:docker]
   end
 else
   puts provision_script
+end
+
+if singularity_image = options[:singularity]
+  docker_dep = options[:docker_dependency] || 'ubuntu'
+
+  TmpFile.with_file(nil, false) do |dir|
+    Path.setup(dir)
+
+    provision_file = dir['provision.sh']
+
+    bootstrap_text=<<-EOF
+Bootstrap: docker
+From: #{docker_dep}
+
+%labels
+  Maintainer miguel.madrid@bsc.es
+
+%post
+  #{provision_script.gsub("\n", "\n  ").gsub(/#.*/,'').gsub("\\\n"," ")}
+EOF
+    FileUtils.mkdir_p dir
+    Open.write(dir["singularity_bootstrap"].find, bootstrap_text)
+    Open.write(provision_file, provision_script)
+
+    puts "RUN"
+    puts "==="
+    cmd_create =  "singularity create -s 2048 #{singularity_image}"
+    cmd_boot =  "singularity bootstrap #{singularity_image} '#{dir["singularity_bootstrap"]}'"
+    puts cmd_create
+    io = CMD.cmd(cmd_create, :pipe => true, :log => true)
+    while line = io.gets
+      puts line
+    end
+
+    puts cmd_boot
+    io = CMD.cmd(cmd_boot, :pipe => true, :log => true)
+    while line = io.gets
+      puts line
+    end
+  end
+
 end
 

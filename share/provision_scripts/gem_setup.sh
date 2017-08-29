@@ -9,7 +9,9 @@ gem install --force --no-ri --no-rdoc ZenTest
 gem install --force --no-ri --no-rdoc RubyInline
 
 # R (extra config in gem)
-gem install --conservative --no-ri --no-rdoc rsruby -- --with-R-dir="$R_HOME" --with-R-include="${R_HOME/\/usr\/lib/\/usr\/share}/include" \
+. /etc/profile
+export R_INCLUDE="$(echo "$R_HOME" | sed 's@/usr/lib\(32\|64\)*@/usr/share@')/include"
+gem install --conservative --no-ri --no-rdoc rsruby -- --with-R-dir="$R_HOME" --with-R-include="$R_INCLUDE" \
   --with_cflags="-fPIC -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wall -fno-strict-aliasing"
 
 # Java (extra config in gem)

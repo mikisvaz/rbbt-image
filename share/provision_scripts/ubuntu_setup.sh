@@ -5,17 +5,14 @@
 
 # Basic system requirements
 # -------------------------
-apt-get -y update
-apt-get -y update
-apt-get -y install \
-  bison autoconf g++ libxslt1-dev make \
-  zlib1g-dev libbz2-dev libreadline6 libreadline6-dev \
-  wget curl git openssl libyaml-0-2 libyaml-dev \
-  ruby2.0 ruby-dev \
+DEBIAN_FRONTEND=noninteractive apt-get -y update && apt-get -y install --no-install-recommends \
+  bison autoconf libxslt1-dev make \
+  zlib1g-dev libbz2-dev libreadline6-dev \
+  wget curl git openssl libyaml-dev \
   openjdk-7-jdk \
-  libcairo2 libcairo2-dev r-base-core r-base-dev r-cran-rserve liblzma5 liblzma-dev libcurl4-openssl-dev \
+  libxt-dev libcairo2-dev r-base-dev r-cran-rserve liblzma-dev libcurl4-openssl-dev \
   libtokyocabinet-dev tokyocabinet-bin \
-  build-essential zlib1g-dev libssl-dev libreadline6-dev libyaml-dev libffi-dev
+  build-essential libssl-dev libffi-dev gfortran unzip
 
 # This link was broken for some reason
 rm /usr/lib/R/bin/Rserve

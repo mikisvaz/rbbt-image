@@ -33,6 +33,7 @@ $ #{$0} [options]
 -Rc--R_custom Install a custom installation of R
 -Rp--R_packages Install basic R packages
 -c--concurrent Prepare system for high-concurrency
+-Rbv--ruby_version* Ruby version to use, using three numbers (defaults to 2.4.1)
 -op--optimize Optimize files under ~/.rbbt
 -dt--docker* Build docker image using the provided name
 -df--docker_file* Use a Dockerfile different than the default
@@ -85,6 +86,8 @@ VARIABLES[:REMOTE_WORKFLOWS] = options[:remote_workflows].split(/[\s,]+/)*" " if
 VARIABLES[:RBBT_NOCOLOR] = "true" if options[:nocolor]
 VARIABLES[:RBBT_NO_PROGRESS] = "true" if options[:nobar]
 
+options[:ruby_version] ||= "2.4.1"
+
 
 provision_script =<<-EOF
 #!/bin/bash -x
@@ -118,7 +121,7 @@ end
 echo "3. Setting up ruby"
 #{
 if not SKIP_RUBY
-  File.read(script_dir + 'ruby_setup.sh') 
+  "export RUBY_VERSION='#{options[:ruby_version]}'\n" << File.read(script_dir + 'ruby_setup.sh') 
 else
   "echo SKIPPED\necho"
 end 
@@ -289,11 +292,11 @@ if singularity_image = options[:singularity]
 Bootstrap: docker
 From: #{docker_dep}
 
-%labels
-  Maintainer miguel.madrid@bsc.es
-
 %post
-  #{provision_script.gsub("\n", "\n  ").gsub(/#.*/,'').gsub("\\\n"," ")}
+  cat > /tmp/rbbt_provision.sh <<"EOS"
+  #{provision_script}
+EOS
+  bash /tmp/rbbt_provision.sh
 EOF
     FileUtils.mkdir_p dir
     Open.write(dir["singularity_bootstrap"].find, bootstrap_text)

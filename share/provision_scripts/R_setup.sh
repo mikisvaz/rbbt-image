@@ -21,4 +21,5 @@ echo "export R_HOME='/usr/local/lib/R'" >> profile.tmp
 echo "export LD_LIBRARY_PATH=\"\$LD_LIBRARY_PATH:\$R_HOME/lib\"" >> profile.tmp
 echo "export LD_RUN_PATH=\"\$LD_RUN_PATH:\$R_HOME/lib\"" >> profile.tmp
 mv profile.tmp /etc/profile
+
 . /etc/profile

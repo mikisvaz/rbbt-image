@@ -3,6 +3,8 @@
 # RUBY GEMS and RBBT
 # =================
 
+. /etc/profile
+
 export REALLY_GEM_UPDATE_SYSTEM=true
 env REALLY_GEM_UPDATE_SYSTEM=true gem update --no-ri --no-rdoc --system
 gem install --force --no-ri --no-rdoc ZenTest
@@ -15,7 +17,7 @@ gem install --conservative --no-ri --no-rdoc rsruby -- --with-R-dir="$R_HOME" --
   --with_cflags="-fPIC -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wall -fno-strict-aliasing"
 
 # Java (extra config in gem)
-export JAVA_HOME=$(echo /usr/lib/jvm/java-7-openjdk-*)
+export JAVA_HOME=$(echo /usr/lib/jvm/java-?-openjdk-*)
 gem install --conservative --force --no-ri --no-rdoc rjb
 
 # Rbbt and some optional gems

@@ -26,6 +26,7 @@ $ #{$0} [options]
 -rr--remote_resources* Remote resources to gather from file-server
 -rw--remote_workflows* Remote workflows server from workflow-server
 -ss--skip_base_system Skip base system installation
+-st--skip_tokyocabinet Skip tokyocabinet setup installation
 -sr--skip_ruby Skip ruby setup installation
 -sg--skip_gem Skip ruby gem installation
 -su--skip_user_setup Skip user setup
@@ -63,6 +64,7 @@ end
 
 USER = options[:user] || 'rbbt'
 SKIP_BASE_SYSTEM = options[:skip_base_system]
+SKIP_TOKYOCABINET= options[:skip_tokyocabinet]
 SKIP_RUBY = options[:skip_ruby]
 R_CUSTOM = options[:R_custom]
 SKIP_BOOT = options[:skip_bootstrap]
@@ -116,6 +118,15 @@ if not SKIP_BASE_SYSTEM and R_CUSTOM
   "echo 1.1 Setting custom R"
   File.read(script_dir + 'R_setup.sh') 
 end 
+}
+
+echo "2. Setting up tokyocabinet"
+#{
+if not SKIP_TOKYOCABINET
+  File.read(script_dir + 'tokyocabinet_setup.sh')
+else
+  "echo SKIPPED\necho"
+end
 }
 
 echo "3. Setting up ruby"

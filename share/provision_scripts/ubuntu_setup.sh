@@ -13,7 +13,6 @@ apt-get -y install \
   wget curl git openssl libyaml-0-2 libyaml-dev \
   openjdk-8-jdk \
   libcairo2 libcairo2-dev r-base-core r-base-dev r-cran-rserve liblzma5 liblzma-dev libcurl4-openssl-dev \
-  libtokyocabinet-dev tokyocabinet-bin \
   build-essential zlib1g-dev libssl-dev libreadline6-dev libyaml-dev libffi-dev
 
 # This link was broken for some reason

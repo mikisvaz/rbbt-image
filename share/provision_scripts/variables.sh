@@ -16,4 +16,4 @@ test -z ${BOOTSTRAP_CPUS+x}       && BOOTSTRAP_CPUS="2"
 
 test -z ${RBBT_LOG+x}  && RBBT_LOG="LOW"
 
-test -z ${RUBY_VERSION+x}  && RUBY_VERSION="2.4.1"
+test -z ${RUBY_VERSION+x}  && RUBY_VERSION="2.4.2"

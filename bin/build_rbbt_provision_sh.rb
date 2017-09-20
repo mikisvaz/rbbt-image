@@ -34,7 +34,7 @@ $ #{$0} [options]
 -Rc--R_custom Install a custom installation of R
 -Rp--R_packages Install basic R packages
 -c--concurrent Prepare system for high-concurrency
--Rbv--ruby_version* Ruby version to use, using three numbers (defaults to 2.4.1)
+-Rbv--ruby_version* Ruby version to use, using three numbers (defaults to 2.4.2)
 -op--optimize Optimize files under ~/.rbbt
 -dt--docker* Build docker image using the provided name
 -df--docker_file* Use a Dockerfile different than the default
@@ -88,7 +88,7 @@ VARIABLES[:REMOTE_WORKFLOWS] = options[:remote_workflows].split(/[\s,]+/)*" " if
 VARIABLES[:RBBT_NOCOLOR] = "true" if options[:nocolor]
 VARIABLES[:RBBT_NO_PROGRESS] = "true" if options[:nobar]
 
-options[:ruby_version] ||= "2.4.1"
+options[:ruby_version] ||= "2.4.2"
 
 
 provision_script =<<-EOF

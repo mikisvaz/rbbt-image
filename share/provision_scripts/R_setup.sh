@@ -7,10 +7,10 @@ cd /tmp
 
 apt-get remove r-base-core
 
-wget https://cran.r-project.org/src/base/R-3/R-3.3.2.tar.gz
-tar -xvzf R-3.3.2.tar.gz
+wget https://cran.r-project.org/src/base/R-3/R-3.4.1.tar.gz
+tar -xvzf R-3.4.1.tar.gz
 
-cd R-3.3.2/
+cd R-3.4.1/
 ./configure --prefix=/usr/local --enable-R-shlib
 make && make install
 

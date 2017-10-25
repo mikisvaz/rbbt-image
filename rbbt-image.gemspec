@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
   s.authors = ["Miguel Vazquez".freeze]
-  s.date = "2016-09-11"
+  s.date = "2017-10-25"
   s.description = "Builds provision files for docker and Vagrant and helps run them".freeze
   s.email = "miguel.vazquez@cnio.es".freeze
   s.executables = ["build_rbbt_provision_sh.rb".freeze, "run_rbbt_docker.rb".freeze]
@@ -22,16 +22,19 @@ Gem::Specification.new do |s|
     "Dockerfile",
     "Vagrantfile",
     "lib/rbbt/docker.rb",
+    "share/provision_scripts/Dockerfile.R-packages",
+    "share/provision_scripts/R_setup.sh",
     "share/provision_scripts/bootstrap.sh",
     "share/provision_scripts/gem_setup.sh",
     "share/provision_scripts/ruby_setup.sh",
+    "share/provision_scripts/tokyocabinet_setup.sh",
     "share/provision_scripts/ubuntu_setup.sh",
     "share/provision_scripts/user_setup.sh",
     "share/provision_scripts/variables.sh"
   ]
   s.homepage = "http://github.com/mikisvaz/rbbt-image".freeze
   s.licenses = ["MIT".freeze]
-  s.rubygems_version = "2.6.6".freeze
+  s.rubygems_version = "2.6.13".freeze
   s.summary = "Build docker and Vagrant (VM) images".freeze
 
   if s.respond_to? :specification_version then

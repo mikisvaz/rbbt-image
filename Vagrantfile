@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-build_script = File.join(File.basename(__FILE__), 'bin/build_rbbt_provision_sh')
+build_script = File.join(File.dirname(__FILE__), 'bin/build_rbbt_provision_sh.rb')
 provision_script = `ruby #{build_script}`
 
 VAGRANTFILE_API_VERSION = "2"
@@ -12,11 +12,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "precise32"
+  config.vm.box = "ubuntu/xenial64"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  config.vm.box_url = "http://files.vagrantup.com/precise32.box"
+  #config.vm.box_url = "http://files.vagrantup.com/xenial.box"
 
   config.vm.network "forwarded_port", guest: 2887, host: 28879
 
@@ -53,18 +53,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #
   
   Vagrant.configure("2") do |config|
-        config.vm.provider "docker" do |d|
-            d.image = "ubuntu:14.04.2"
-        end
+   config.vm.provider "docker" do |d|
+    d.image = "ubuntu:xenial"
+   end
+
+   config.vm.provider :virtualbox do |vb|
+    # Don't boot with headless mode
+    vb.gui = true
+
+    # Use VBoxManage to customize the VM. For example to change memory:
+    vb.customize ["modifyvm", :id, "--memory", "4096"]
+   end
   end
   #
-  # config.vm.provider :virtualbox do |vb|
-  #   # Don't boot with headless mode
-  #   vb.gui = true
-  #
-  #   # Use VBoxManage to customize the VM. For example to change memory:
-  #   vb.customize ["modifyvm", :id, "--memory", "1024"]
-  # end
   #
   # View the documentation for the provider you're using for more
   # information on available options.
@@ -89,7 +90,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #
   # config.vm.provision :puppet do |puppet|
   #   puppet.manifests_path = "manifests"
-  #   puppet.manifest_file  = "site.pp"
   # end
 
   # Enable provisioning with chef solo, specifying a cookbooks path, roles
@@ -132,5 +132,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 end
 
 Vagrant::Config.run do |config|
-  config.vm.customize ["modifyvm", :id, "--memory", 1024]
+ config.vm.customize ["modifyvm", :id, "--memory", 1024]
 end

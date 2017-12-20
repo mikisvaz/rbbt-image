@@ -36,11 +36,12 @@ $ #{$0} [options]
 -c--concurrent Prepare system for high-concurrency
 -Rbv--ruby_version* Ruby version to use, using three numbers (defaults to 2.4.1)
 -op--optimize Optimize files under ~/.rbbt
+-dep--container_dependency* Use a different image in Dockerfile, Singularity and Virtualbox
 -dt--docker* Build docker image using the provided name
--df--docker_file* Use a Dockerfile different than the default
--dd--docker_dependency* Use a different image in the Dockerfile FROM
 -si--singularity* Build singularity image using the provided name
--v--volumnes* List of volumes to set-up
+-vb--virtualbox Build virtualbox image
+-df--docker_file* Use a Dockerfile different than the default
+-dv--docker_volumnes* List of volumes to set-up in Docker
 --nocolor Prevent rbbt from using colors and control sequences in the logs while provisioning
 --nobar Prevent rbbt from using progress bars while provisioning
 EOF
@@ -258,16 +259,16 @@ date
 
 EOF
 
-docker_dependency = options[:docker_dependency]
+container_dependency = options[:container_dependency] || 'ubuntu:xenial'
 
-if options[:docker]
+if docker_image = options[:docker]
   dockerfile = options[:dockerfile] || File.join(root_dir, 'Dockerfile')
   dockerfile_text = Open.read(dockerfile)
-  dockerfile_text.sub!(/^FROM.*/,'FROM ' + docker_dependency) if docker_dependency
+  dockerfile_text.sub!(/^FROM.*/,'FROM ' + container_dependency) if container_dependency
   dockerfile_text.sub!(/^USER rbbt/,'USER ' + USER) if USER != 'rbbt'
   dockerfile_text.sub!(/^ENV HOME \/home\/rbbt/,'ENV HOME /home/' + USER) if USER != 'rbbt'
-  if options[:volumnes]
-    volumnes = options[:volumnes].split(/\s*[,|]\s*/).collect{|d| "VOLUME " << d} * "\n"
+  if options[:docker_volumnes]
+    volumnes = options[:docker_volumnes].split(/\s*[,|]\s*/).collect{|d| "VOLUME " << d} * "\n"
     dockerfile_text.sub!(/^RUN/, volumnes + "\nRUN")
   end
   if options[:R_packages]
@@ -281,8 +282,8 @@ if options[:docker]
 
     puts "RUN"
     puts "==="
-    puts "docker build -t #{options[:docker]} '#{dir}'"
-    io = CMD.cmd("docker build -t #{options[:docker]} '#{dir}'", :pipe => true, :log => true)
+    puts "docker build -t #{docker_image} '#{dir}'"
+    io = CMD.cmd("docker build -t #{docker_image} '#{dir}'", :pipe => true, :log => true)
     while line = io.gets
       puts line
     end
@@ -292,7 +293,6 @@ else
 end
 
 if singularity_image = options[:singularity]
-  docker_dep = options[:docker_dependency] || 'ubuntu'
 
   TmpFile.with_file(nil, false) do |dir|
     Path.setup(dir)
@@ -301,7 +301,7 @@ if singularity_image = options[:singularity]
 
     bootstrap_text=<<-EOF
 Bootstrap: docker
-From: #{docker_dep}
+From: #{container_dependency}
 
 %post
   cat > /tmp/rbbt_provision.sh <<"EOS"
@@ -332,3 +332,39 @@ EOF
 
 end
 
+if options[:virtualbox]
+  TmpFile.with_file(nil, false) do |dir|
+    Path.setup(dir)
+
+    provision_file = dir['provision.sh']
+    vagrant_file = dir['Vagrantfile']
+
+    Open.write provision_file, provision_script
+    Open.write vagrant_file, <<-EOF
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "#{container_dependency.sub(':','/')}64"
+
+  config.vm.provision :shell, :path => "#{provision_file}"
+  
+  config.vm.provider "virtualbox" do |vb|
+     # Display the VirtualBox GUI when booting the machine
+     vb.gui = true
+
+     # Customize the amount of memory on the VM:
+     vb.memory = "8192"
+  end
+end
+    EOF
+
+    iii dir
+    Misc.in_dir(dir) do
+      io = CMD.cmd('vagrant up', :pipe => true, :log => true)
+      while line = io.gets
+        puts line
+      end
+    end
+  end
+end

@@ -29,6 +29,7 @@ $ #{$0} [options]
 -st--skip_tokyocabinet Skip tokyocabinet setup installation
 -sr--skip_ruby Skip ruby setup installation
 -sg--skip_gem Skip ruby gem installation
+-sR--skip_R Skip R setup
 -su--skip_user_setup Skip user setup
 -sb--skip_bootstrap Skip user bootstrap
 -Rc--R_custom Install a custom installation of R
@@ -68,6 +69,7 @@ SKIP_BASE_SYSTEM = options[:skip_base_system]
 SKIP_TOKYOCABINET= options[:skip_tokyocabinet]
 SKIP_RUBY = options[:skip_ruby]
 R_CUSTOM = options[:R_custom]
+SKIP_R = options[:skip_R]
 SKIP_BOOT = options[:skip_bootstrap]
 SKIP_USER = options[:skip_user_setup]
 SKIP_GEM = options[:skip_gem]
@@ -114,10 +116,19 @@ else
 end 
 }
 
+echo "source /etc/rbbt_environment" >> /etc/profile
+
 #{
 if not SKIP_BASE_SYSTEM and R_CUSTOM
   "echo 1.1 Setting custom R"
   File.read(script_dir + 'R_setup.sh') 
+end 
+}
+
+#{
+if not SKIP_R 
+  "echo 1.2 Install R packages"
+  File.read(script_dir + 'R_packages.sh') 
 end 
 }
 
@@ -271,9 +282,13 @@ if docker_image = options[:docker]
     volumnes = options[:docker_volumnes].split(/\s*[,|]\s*/).collect{|d| "VOLUME " << d} * "\n"
     dockerfile_text.sub!(/^RUN/, volumnes + "\nRUN")
   end
-  if options[:R_packages]
-    dockerfile_text.sub!(/^(# END PROVISION)/, '\1' + "\n" + Open.read(File.join(script_dir, 'Dockerfile.R-packages')) + "\n" )
-  end
+
+  # NOTE: Not used like this now. Used in provision script
+  #
+  #if options[:R_packages]
+  #  dockerfile_text.sub!(/^(# END PROVISION)/, '\1' + "\n" + Open.read(File.join(script_dir, 'Dockerfile.R-packages')) + "\n" )
+  #end
+
   TmpFile.with_file(nil, false) do |dir|
     FileUtils.mkdir_p dir
     Path.setup(dir)
@@ -305,6 +320,7 @@ From: #{container_dependency}
 
 %post
   cat > /tmp/rbbt_provision.sh <<"EOS"
+  echo "source /etc/rbbt_environment" > /.singularity/env/99-rbbt_environment
   #{provision_script}
 EOS
   bash /tmp/rbbt_provision.sh
@@ -359,7 +375,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 end
     EOF
 
-    iii dir
     Misc.in_dir(dir) do
       io = CMD.cmd('vagrant up', :pipe => true, :log => true)
       while line = io.gets

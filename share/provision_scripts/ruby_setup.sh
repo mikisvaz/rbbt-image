@@ -13,8 +13,8 @@ make && make install
 
 unset _small_version
 
-grep '#Ruby2' /etc/profile || echo 'export PATH="/usr/local/bin:$PATH" #Ruby2' >> /etc/profile
-. /etc/profile
+echo 'export PATH="/usr/local/bin:$PATH" #Ruby2' >> /etc/rbbt_environment
+. /etc/rbbt_environment
 
 #\curl -sSL https://get.rvm.io | bash -s stable
 #source /etc/profile.d/rvm.sh

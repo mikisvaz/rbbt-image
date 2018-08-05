@@ -20,14 +20,15 @@ rbbt-image=/$PWD filter="*" {
  }
  share=share{
   provision_scripts=provision_scripts filter="*"{
-   ubuntu_setup.sh
-   ruby_setup.sh
+   R_packages.sh
    R_setup.sh
+   bootstrap.sh
    gem_setup.sh
+   ruby_setup.sh
+   tokyocabinet_setup.sh
+   ubuntu_setup.sh
    user_setup.sh
    variables.sh
-   bootstrap.sh
-   Dockerfile.R-packages
   }
  }
 }

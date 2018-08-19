@@ -116,6 +116,7 @@ else
 end 
 }
 
+echo "[ -f ~/.rbbt/etc/environtment ] && . ~/.rbbt/etc/environtment" >> "/etc/rbbt_environment"
 echo "source /etc/rbbt_environment" >> /etc/profile
 
 #{
@@ -256,6 +257,13 @@ else
 end
 
 provision_script +=<<-EOF
+# HACKS
+# =====
+
+#{File.read(script_dir + 'hacks.sh')}
+EOF
+
+provision_script +=<<-EOF
 # CODA
 # ====
 
@@ -265,7 +273,7 @@ rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc /usr/share/man /usr
 #{ "su -l -c 'rbbt system optimize /home/#{USER}/.rbbt ' #{USER}" if OPTIMIZE}
 
 echo
-echo "Installation done."
+echo -n "Installation done: "
 date
 
 EOF
@@ -320,10 +328,11 @@ From: #{container_dependency}
 
 %post
   cat > /tmp/rbbt_provision.sh <<"EOS"
-  echo "source /etc/rbbt_environment" > /.singularity/env/99-rbbt_environment
   #{provision_script}
 EOS
   bash /tmp/rbbt_provision.sh
+  ln -s /etc/rbbt_environment /.singularity.d/env/99-rbbt_environment.sh
+  chmod +x /.singularity.d/env/99-rbbt_environment.sh
 EOF
     FileUtils.mkdir_p dir
     Open.write(dir["singularity_bootstrap"].find, bootstrap_text)

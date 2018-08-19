@@ -29,6 +29,7 @@ rbbt-image=/$PWD filter="*" {
    ubuntu_setup.sh
    user_setup.sh
    variables.sh
+   hacks.sh
   }
  }
 }

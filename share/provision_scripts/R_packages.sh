@@ -15,6 +15,14 @@ function R_install_packages(){
   echo "install.packages(c($pkgs), repos='http://cran.us.r-project.org')" | R --vanilla
 }
 
+function R_biocLite(){
+  pkgs="'$1'"
+  shift
+  for p in $@; do
+    echo "source('http://bioconductor.org/biocLite.R'); biocLite('$p')" | R --vanilla
+  done
+}
+
 function R_CMD_install(){
   url=$1
   name=$2
@@ -28,12 +36,12 @@ R_CMD_install 'https://cran.r-project.org/src/contrib/Archive/car/car_2.0-22.tar
 R_install_packages 'digest', 'gtable', 'reshape2', 'scales', 'proto'
 
 R_CMD_install 'https://cran.r-project.org/src/contrib/Archive/ggplot2/ggplot2_1.0.0.tar.gz' ggplot2
-R_CMD_install 'https://cran.r-project.org/src/contrib/Archive/ggthemes/ggthemes_1.7.0.tar.gz' ggthemes
-R_CMD_install 'https://cran.r-project.org/src/contrib/gridSVG_1.5-0.tar.gz' gridSVG
 
-R_install_packages NMF Cairo drc Rserve
-echo "source('http://bioconductor.org/biocLite.R'); biocLite('limma')" | R --vanilla
-
+R_install_packages NMF Cairo drc Rserve gridSVG ggthemes mclust randomForest viper
 R_install_packages pheatmap VennDiagram Hmisc pls
+
+R_biocLite limma viper
+
+R_install_packages pROC
 
 rm /tmp/R-pkg-*.tar.gz

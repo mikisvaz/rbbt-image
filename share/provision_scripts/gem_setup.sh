@@ -27,7 +27,7 @@ gem install --no-ri --no-rdoc --force \
     rbbt-util rbbt-rest rbbt-dm rbbt-text rbbt-sources rbbt-phgx rbbt-GE \
     rserve-client \
     uglifier therubyracer kramdown\
-    puma prawn
+    puma prawn prawn-svg
 
 # Get good version of lockfile
 wget http://ubio.bioinfo.cnio.es/people/mvazquezg/lockfile-2.1.4.gem -O /tmp/lockfile-2.1.4.gem

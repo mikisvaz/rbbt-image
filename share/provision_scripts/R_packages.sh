@@ -42,6 +42,6 @@ R_install_packages pheatmap VennDiagram Hmisc pls
 
 R_biocLite limma viper
 
-R_install_packages pROC
+R_install_packages pROC txtplot
 
 rm /tmp/R-pkg-*.tar.gz

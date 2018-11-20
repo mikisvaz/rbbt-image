@@ -30,8 +30,9 @@ gem install --no-ri --no-rdoc --force \
     puma prawn prawn-svg
 
 # Get good version of lockfile
-wget http://ubio.bioinfo.cnio.es/people/mvazquezg/lockfile-2.1.4.gem -O /tmp/lockfile-2.1.4.gem
-gem install --no-ri --no-rdoc /tmp/lockfile-2.1.4.gem
+#wget http://ubio.bioinfo.cnio.es/people/mvazquezg/lockfile-2.1.4.gem -O /tmp/lockfile-2.1.4.gem
+wget http://github.com/mikisvaz/lockfile/raw/master/lockfile-2.1.5.gem -O /tmp/lockfile-2.1.5.gem
+gem install --no-ri --no-rdoc /tmp/lockfile-2.1.5.gem
 
 # Extra things for web interface
 gem install --no-ri --no-rdoc bio-svgenes mimemagic

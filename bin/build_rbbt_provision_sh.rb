@@ -34,12 +34,12 @@ $ #{$0} [options]
 -sb--skip_bootstrap Skip user bootstrap
 -Rc--R_custom Install a custom installation of R
 -Rp--R_packages Install basic R packages
--c--concurrent Prepare system for high-concurrency
 -Rbv--ruby_version* Ruby version to use, using three numbers (defaults to 2.4.1)
 -op--optimize Optimize files under ~/.rbbt
 -dep--container_dependency* Use a different image in Dockerfile, Singularity and Virtualbox
 -dt--docker* Build docker image using the provided name
 -si--singularity* Build singularity image using the provided name
+-sis--singularity_size* Singularity image size (default 2024)
 -vb--virtualbox Build virtualbox image
 -df--docker_file* Use a Dockerfile different than the default
 -dv--docker_volumnes* List of volumes to set-up in Docker
@@ -59,10 +59,10 @@ end
 root_dir = File.dirname(File.dirname(File.expand_path(__FILE__)))
 script_dir = File.join(root_dir, "share/provision_scripts/")
 
-if options[:singularity]
-  options[:skip_user_setup] = true
-  options[:skip_bootstrap] = true
-end
+#if options[:singularity]
+#  options[:skip_user_setup] = true
+#  options[:skip_bootstrap] = true
+#end
 
 USER = options[:user] || 'rbbt'
 SKIP_BASE_SYSTEM = options[:skip_base_system]
@@ -83,7 +83,6 @@ VARIABLES={
 
 VARIABLES[:BOOTSTRAP_WORKFLOWS] = "" if VARIABLES[:BOOTSTRAP_WORKFLOWS] == 'none'
 
-VARIABLES[:RBBT_NO_LOCKFILE_ID] = "true" if options[:concurrent]
 VARIABLES[:RBBT_SERVER] = options[:server] if options[:server]
 VARIABLES[:RBBT_FILE_SERVER] = options[:file_server] if options[:file_server]
 VARIABLES[:RBBT_WORKFLOW_SERVER] = options[:workflow_server] if options[:workflow_server]
@@ -330,9 +329,16 @@ From: #{container_dependency}
   cat > /tmp/rbbt_provision.sh <<"EOS"
   #{provision_script}
 EOS
-  bash /tmp/rbbt_provision.sh
+  bash -x /tmp/rbbt_provision.sh
   ln -s /etc/rbbt_environment /.singularity.d/env/99-rbbt_environment.sh
   chmod +x /.singularity.d/env/99-rbbt_environment.sh
+  bash -c '[ -d /usr/local/share ] || mkdir -p /usr/local/share'
+  bash -c '[ -d /software/rbbt ] || mkdir -p /software/rbbt'
+  bash -c '[ -d /home/#{USER}/.rbbt/var/ ] && mv /home/#{USER}/.rbbt/var/ /var/rbbt'
+  bash -c '[ -d /home/#{USER}/.rbbt/share/ ] && mv /home/#{USER}/.rbbt/share/ /usr/local/share/rbbt'
+  bash -c '[ -d /home/#{USER}/.rbbt/software/opt ] && mv /home/#{USER}/.rbbt/software/opt /software/rbbt/opt'
+  bash -c '[ -d /home/#{USER}/.rbbt/software/src ] && mv /home/#{USER}/.rbbt/software/src /software/rbbt/src'
+  bash -c '[ -d /home/#{USER}/.rbbt/software/scm ] && mv /home/#{USER}/.rbbt/software/scm /software/rbbt/scm'
 EOF
     FileUtils.mkdir_p dir
     Open.write(dir["singularity_bootstrap"].find, bootstrap_text)
@@ -340,7 +346,8 @@ EOF
 
     puts "RUN"
     puts "==="
-    cmd_create =  "singularity create -s 2048 #{singularity_image}"
+    singularity_size = options[:singularity_size]
+    cmd_create =  "singularity create -s #{singularity_size} #{singularity_image}"
     cmd_boot =  "singularity bootstrap #{singularity_image} '#{dir["singularity_bootstrap"]}'"
     puts cmd_create
     io = CMD.cmd(cmd_create, :pipe => true, :log => true)

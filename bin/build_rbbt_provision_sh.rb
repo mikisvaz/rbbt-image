@@ -115,7 +115,7 @@ else
 end 
 }
 
-echo "[ -f ~/.rbbt/etc/environtment ] && . ~/.rbbt/etc/environtment" >> "/etc/rbbt_environment"
+echo "[ -f ~/.rbbt/etc/environment ] && . ~/.rbbt/etc/environment" >> "/etc/rbbt_environment"
 echo "source /etc/rbbt_environment" >> /etc/profile
 
 #{
@@ -346,7 +346,7 @@ EOF
 
     puts "RUN"
     puts "==="
-    singularity_size = options[:singularity_size]
+    singularity_size = options[:singularity_size] || 2048
     cmd_create =  "singularity create -s #{singularity_size} #{singularity_image}"
     cmd_boot =  "singularity bootstrap #{singularity_image} '#{dir["singularity_bootstrap"]}'"
     puts cmd_create

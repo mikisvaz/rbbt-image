@@ -14,11 +14,12 @@ apt-get -y update
 apt-get -y install \
   vim \
   bison autoconf g++ libxslt1-dev make \
-  zlib1g-dev libbz2-dev libreadline6 libreadline6-dev \
+  zlib1g-dev libbz2-dev libreadline-dev \
   wget curl git openssl libyaml-0-2 libyaml-dev \
   openjdk-8-jdk \
   libcairo2 libcairo2-dev r-base-core r-base-dev r-cran-rserve liblzma5 liblzma-dev libcurl4-openssl-dev \
-  build-essential zlib1g-dev libssl-dev libreadline6-dev libyaml-dev libffi-dev \
+  build-essential zlib1g-dev libssl-dev libyaml-dev libffi-dev \
+  python3 \
   libtbb-dev
 
 # For paradigm/libdai

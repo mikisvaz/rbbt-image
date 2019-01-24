@@ -277,7 +277,7 @@ date
 
 EOF
 
-container_dependency = options[:container_dependency] || 'ubuntu:xenial'
+container_dependency = options[:container_dependency] || 'ubuntu:cosmic'
 
 if docker_image = options[:docker]
   dockerfile = options[:dockerfile] || File.join(root_dir, 'Dockerfile')

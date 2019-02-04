@@ -28,6 +28,8 @@ $ #{$0} [options]
 -ss--skip_base_system Skip base system installation
 -st--skip_tokyocabinet Skip tokyocabinet setup installation
 -sr--skip_ruby Skip ruby setup installation
+-sp--skip_perl Skip perl setup installation
+-spy--skip_python Skip python setup installation
 -sg--skip_gem Skip ruby gem installation
 -sR--skip_R Skip R setup
 -su--skip_user_setup Skip user setup
@@ -68,6 +70,8 @@ USER = options[:user] || 'rbbt'
 SKIP_BASE_SYSTEM = options[:skip_base_system]
 SKIP_TOKYOCABINET= options[:skip_tokyocabinet]
 SKIP_RUBY = options[:skip_ruby]
+SKIP_PERL = options[:skip_perl]
+SKIP_PYTHON = options[:skip_python]
 R_CUSTOM = options[:R_custom]
 SKIP_R = options[:skip_R]
 SKIP_BOOT = options[:skip_bootstrap]
@@ -150,6 +154,7 @@ else
 end 
 }
 
+
 echo "3.1. Setting up gems"
 #{
 if not SKIP_GEM
@@ -159,6 +164,24 @@ else
 end 
 }
 
+echo "4 Setting up other stuff"
+echo "4.1 Setting up perl"
+#{
+if not SKIP_PERL
+  File.read(script_dir + 'perl_setup.sh') 
+else
+  "echo SKIPPED\necho"
+end 
+}
+
+echo "4.2 Setting up python"
+#{
+if not SKIP_PYTHON
+  File.read(script_dir + 'python_setup.sh') 
+else
+  "echo SKIPPED\necho"
+end 
+}
 EOF
 
 provision_script +=<<-EOF
@@ -346,7 +369,7 @@ EOF
 
     puts "RUN"
     puts "==="
-    singularity_size = options[:singularity_size] || 2048
+    singularity_size = options[:singularity_size] || 3072
     cmd_create =  "singularity create -s #{singularity_size} #{singularity_image}"
     cmd_boot =  "singularity bootstrap #{singularity_image} '#{dir["singularity_bootstrap"]}'"
     puts cmd_create

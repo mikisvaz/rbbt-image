@@ -5,9 +5,8 @@
 
 # Basic system requirements
 # -------------------------
+apt-get -y update
 apt-get -y install software-properties-common
-add-apt-repository ppa:george-edison55/cmake-3.x
-apt-get -y install cmake
 
 apt-get -y update
 apt-get -y update
@@ -19,12 +18,18 @@ apt-get -y install \
   openjdk-8-jdk \
   libcairo2 libcairo2-dev r-base-core r-base-dev r-cran-rserve liblzma5 liblzma-dev libcurl4-openssl-dev \
   build-essential zlib1g-dev libssl-dev libyaml-dev libffi-dev \
-  python3 \
+  python3 python \
+  tcsh gawk \
   libtbb-dev
+
+add-apt-repository ppa:george-edison55/cmake-3.x
+apt-get -y update
+apt-get -y update
+apt-get -y install cmake
 
 # For paradigm/libdai
 apt-get -y install \
-  libgmp-dev libboost-dev libboost-program-options-dev libboost-test-dev
+  libgmp-dev libboost-all-dev 
 
 # This link was broken for some reason
 rm /usr/lib/R/bin/Rserve

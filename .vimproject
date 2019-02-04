@@ -25,6 +25,8 @@ rbbt-image=/$PWD filter="*" {
    bootstrap.sh
    gem_setup.sh
    ruby_setup.sh
+   perl_setup.sh
+   python_setup.sh
    tokyocabinet_setup.sh
    ubuntu_setup.sh
    user_setup.sh

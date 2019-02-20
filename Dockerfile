@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM ubuntu:cosmic
 USER root
 # START PROVISION
 ADD provision.sh /tmp/provision.sh

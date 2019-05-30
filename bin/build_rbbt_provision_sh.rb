@@ -372,7 +372,7 @@ EOF
     puts "==="
     singularity_size = options[:singularity_size] || 3072
     cmd_create =  "singularity create -s #{singularity_size} #{singularity_image}"
-    cmd_boot =  "singularity bootstrap #{singularity_image} '#{dir["singularity_bootstrap"]}'"
+    cmd_boot =  "singularity build #{singularity_image} '#{dir["singularity_bootstrap"]}'"
     puts cmd_create
     io = CMD.cmd(cmd_create, :pipe => true, :log => true)
     while line = io.gets

@@ -81,7 +81,7 @@ OPTIMIZE = options[:optimize]
 
 VARIABLES={
  :RBBT_LOG => 0,
- :BOOTSTRAP_WORKFLOWS => (options[:workflow] || "Enrichment Translation Sequence MutationEnrichment").split(/[\s,]+/)*" ",
+ :BOOTSTRAP_WORKFLOWS => (options[:workflow] || "").split(/[\s,]+/)*" ",
  :REMOTE_RESOURCES => (options[:remote_resources] || "KEGG").split(/[\s,]+/)*" "
 }
 

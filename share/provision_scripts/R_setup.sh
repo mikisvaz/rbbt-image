@@ -15,9 +15,8 @@ cd R-*/
 make && make install
 
 echo "# For RSRuby gem " >> /etc/rbbt_environment
-echo "export R_HOME='/usr/local/lib/R'" >> /etc/rbbt_environment
-echo "export PATH=\"$R_HOME/bin:$PATH\"" >> /etc/rbbt_environment
-echo "export LD_LIBRARY_PATH=\"\$LD_LIBRARY_PATH:\$R_HOME/lib\"" >> /etc/rbbt_environment
-echo "export LD_RUN_PATH=\"\$LD_RUN_PATH:\$R_HOME/lib\"" >> /etc/rbbt_environment
+echo 'export R_HOME="/usr/local/lib/R"' >> /etc/rbbt_environment
+echo '_add_path "$R_HOME/bin/" # Rserver' >> /etc/rbbt_environment
+echo '_add_lib_path "$R_HOME/lib/" # Rserver' >> /etc/rbbt_environment
 
 . /etc/rbbt_environment

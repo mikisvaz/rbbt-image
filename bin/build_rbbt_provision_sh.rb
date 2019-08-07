@@ -119,9 +119,6 @@ else
 end 
 }
 
-echo "[ -f ~/.rbbt/etc/environment ] && . ~/.rbbt/etc/environment" >> "/etc/rbbt_environment"
-echo "source /etc/rbbt_environment" >> /etc/profile
-
 #{
 if not SKIP_BASE_SYSTEM and R_CUSTOM
   "echo 1.1 Setting custom R"
@@ -182,6 +179,9 @@ else
   "echo SKIPPED\necho"
 end 
 }
+
+echo "[ -f ~/.rbbt/etc/environment ] && . ~/.rbbt/etc/environment" >> "/etc/rbbt_environment"
+echo "source /etc/rbbt_environment" >> /etc/profile
 EOF
 
 provision_script +=<<-EOF

@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-test -z ${RBBT_SERVER+x}           && RBBT_SERVER=http://rbbt.bioinfo.cnio.es/ 
+test -z ${RBBT_SERVER+x}           && RBBT_SERVER=http://rbbt.bsc.es/ 
 test -z ${RBBT_FILE_SERVER+x}      && RBBT_FILE_SERVER="$RBBT_SERVER"
 test -z ${RBBT_WORKFLOW_SERVER+x}  && RBBT_WORKFLOW_SERVER="$RBBT_SERVER"
 

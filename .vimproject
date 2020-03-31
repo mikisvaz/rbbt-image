@@ -9,7 +9,7 @@ rbbt-image=/$PWD filter="*" {
  }
  etc=etc{
   infrastructure=infrastructure{
-   PCAWG.yaml
+   default.yaml
   }
  }
 
@@ -20,18 +20,19 @@ rbbt-image=/$PWD filter="*" {
  }
  share=share{
   provision_scripts=provision_scripts filter="*"{
+   Dockerfile.R-packages
    R_packages.sh
    R_setup.sh
    bootstrap.sh
    gem_setup.sh
-   ruby_setup.sh
+   hacks.sh
    perl_setup.sh
    python_setup.sh
+   ruby_setup.sh
    tokyocabinet_setup.sh
    ubuntu_setup.sh
    user_setup.sh
    variables.sh
-   hacks.sh
   }
  }
 }

@@ -94,7 +94,7 @@ VARIABLES[:REMOTE_WORKFLOWS] = options[:remote_workflows].split(/[\s,]+/)*" " if
 VARIABLES[:RBBT_NOCOLOR] = "true" if options[:nocolor]
 VARIABLES[:RBBT_NO_PROGRESS] = "true" if options[:nobar]
 
-options[:ruby_version] ||= "2.4.1"
+options[:ruby_version] ||= "2.6.4"
 
 
 provision_script =<<-EOF
@@ -290,7 +290,7 @@ provision_script +=<<-EOF
 # ====
 
 apt-get clean
-rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc /usr/share/man /usr/local/share/ri
+rm -rf /var/lib/apt/lists/* /var/tmp/* /usr/share/doc /usr/share/man /usr/local/share/ri
 
 #{ "su -l -c 'rbbt system optimize /home/#{USER}/.rbbt ' #{USER}" if OPTIMIZE}
 
@@ -300,9 +300,9 @@ date
 
 EOF
 
-container_dependency = options[:container_dependency] || 'ubuntu:cosmic'
 
 if docker_image = options[:docker]
+  container_dependency = options[:container_dependency] || 'ubuntu:disco'
   dockerfile = options[:dockerfile] || File.join(root_dir, 'Dockerfile')
   dockerfile_text = Open.read(dockerfile)
   dockerfile_text.sub!(/^FROM.*/,'FROM ' + container_dependency) if container_dependency
@@ -339,6 +339,7 @@ end
 
 if singularity_image = options[:singularity]
 
+  container_dependency = options[:container_dependency] || 'ubuntu:disco'
   TmpFile.with_file(nil, false) do |dir|
     Path.setup(dir)
 
@@ -349,10 +350,10 @@ Bootstrap: docker
 From: #{container_dependency}
 
 %post
-  cat > /tmp/rbbt_provision.sh <<"EOS"
+  cat > /image_provision.sh <<"EOS"
   #{provision_script}
 EOS
-  bash -x /tmp/rbbt_provision.sh
+  bash -x /image_provision.sh 2>&1 | tee /image_provision.log
   ln -s /etc/rbbt_environment /.singularity.d/env/99-rbbt_environment.sh 
   chmod +x /.singularity.d/env/99-rbbt_environment.sh
   bash -c '[ -d /usr/local/share ] || mkdir -p /usr/local/share' 
@@ -368,22 +369,22 @@ EOF
     Open.write(dir["singularity_bootstrap"].find, bootstrap_text)
     Open.write(provision_file, provision_script)
 
-    puts "RUN"
-    puts "==="
     singularity_size = options[:singularity_size] || 3072
     cmd_create =  "singularity create -s #{singularity_size} #{singularity_image}"
     cmd_boot =  "singularity build #{singularity_image} '#{dir["singularity_bootstrap"]}'"
-    puts cmd_create
-    io = CMD.cmd(cmd_create, :pipe => true, :log => true)
-    while line = io.gets
-      puts line
-    end
 
+
+    puts "**************"
+    puts "CREATING IMAGE: #{dir["singularity_bootstrap"].find}"
+    puts "**************"
+    puts cmd_create
+    CMD.cmd_log(cmd_create, :log => 4)
+
+    puts "**************"
+    puts "BUILDING IMAGE: #{dir["singularity_bootstrap"].find}"
+    puts "**************"
     puts cmd_boot
-    io = CMD.cmd(cmd_boot, :pipe => true, :log => true)
-    while line = io.gets
-      puts line
-    end
+    CMD.cmd_log(cmd_boot, :log => 4)
   end
 
 end

@@ -29,8 +29,6 @@ gem install --no-document --force \
     ruby-prof \
     rbbt-util rbbt-rest rbbt-dm rbbt-text rbbt-sources rbbt-phgx rbbt-GE \
     rserve-client \
-    uglifier therubyracer kramdown\
-    puma prawn prawn-svg
 
 # Get good version of lockfile
 #wget http://ubio.bioinfo.cnio.es/people/mvazquezg/lockfile-2.1.4.gem -O /tmp/lockfile-2.1.4.gem
@@ -39,4 +37,10 @@ wget http://github.com/mikisvaz/lockfile/raw/master/lockfile-2.1.5.gem -O /tmp/l
 gem install --no-document /tmp/lockfile-2.1.5.gem
 
 # Extra things for web interface
-gem install --no-document bio-svgenes mimemagic
+gem install --no-document --force \
+    tokyocabinet \
+    ruby-prof \
+    rbbt-util rbbt-rest rbbt-dm rbbt-text rbbt-sources rbbt-phgx rbbt-GE \
+    rserve-client \
+    uglifier therubyracer kramdown pandoc pandoc-ruby\
+    puma prawn prawn-svg

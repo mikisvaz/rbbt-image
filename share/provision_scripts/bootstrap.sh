@@ -3,7 +3,7 @@
 # USER RBBT BOOTSTRAP
 # ===================
 
-for workflow in $WORKFLOWS; do
+for workflow in $BOOTSTRAP_WORKFLOWS; do
     rbbt workflow install $workflow 
 done
 

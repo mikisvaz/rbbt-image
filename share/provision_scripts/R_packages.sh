@@ -37,7 +37,10 @@ R_install_packages 'digest' 'gtable' 'reshape2' 'scales' 'proto'
 
 R_CMD_install 'https://cran.r-project.org/src/contrib/Archive/ggplot2/ggplot2_1.0.0.tar.gz' ggplot2
 
-R_install_packages NMF Cairo drc Rserve gridSVG ggthemes mclust randomForest viper
+R_install_packages NMF Cairo drc gridSVG ggthemes mclust randomForest viper
+
+echo 'install.packages("Rserve", repos="http://www.rforge.net/")' | R --vanilla
+
 R_install_packages pheatmap VennDiagram Hmisc pls gridSVG
 R_install_packages tidyverse
 

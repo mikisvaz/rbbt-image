@@ -76,6 +76,7 @@ DEBIAN_FRONTEND=noninteractive apt-get -y install \
   vim \
   wget \
   libc6 \
+  time numactl \
   bison autoconf g++ libxslt1-dev make \
   zlib1g-dev libbz2-dev libreadline-dev \
   rsync wget curl git openssl libyaml-0-2 libyaml-dev \

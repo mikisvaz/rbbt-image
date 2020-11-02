@@ -302,7 +302,7 @@ EOF
 
 
 if docker_image = options[:docker]
-  container_dependency = options[:container_dependency] || 'ubuntu:disco'
+  container_dependency = options[:container_dependency] || 'ubuntu:focal'
   dockerfile = options[:dockerfile] || File.join(root_dir, 'Dockerfile')
   dockerfile_text = Open.read(dockerfile)
   dockerfile_text.sub!(/^FROM.*/,'FROM ' + container_dependency) if container_dependency
@@ -339,7 +339,7 @@ end
 
 if singularity_image = options[:singularity]
 
-  container_dependency = options[:container_dependency] || 'ubuntu:disco'
+  container_dependency = options[:container_dependency] || 'ubuntu:focal'
   TmpFile.with_file(nil, false) do |dir|
     Path.setup(dir)
 

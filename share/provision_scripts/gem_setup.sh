@@ -33,8 +33,8 @@ gem install --no-document --force \
 # Get good version of lockfile
 #wget http://ubio.bioinfo.cnio.es/people/mvazquezg/lockfile-2.1.4.gem -O /tmp/lockfile-2.1.4.gem
 echo "* Installing our version of lockfile"
-wget http://github.com/mikisvaz/lockfile/raw/master/lockfile-2.1.5.gem -O /tmp/lockfile-2.1.5.gem
-gem install --no-document /tmp/lockfile-2.1.5.gem
+wget http://github.com/mikisvaz/lockfile/raw/master/lockfile-2.1.6.gem -O /tmp/lockfile-2.1.6.gem
+gem install --no-document /tmp/lockfile-2.1.6.gem
 
 # Extra things for web interface
 gem install --no-document --force \
@@ -42,5 +42,6 @@ gem install --no-document --force \
     ruby-prof \
     rbbt-util rbbt-rest rbbt-dm rbbt-text rbbt-sources rbbt-phgx rbbt-GE \
     rserve-client \
-    uglifier therubyracer kramdown pandoc pandoc-ruby\
-    puma prawn prawn-svg
+    uglifier therubyracer kramdown pandoc pandoc-ruby \
+    puma prawn prawn-svg \
+    torch-rb

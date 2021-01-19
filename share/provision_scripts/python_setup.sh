@@ -11,6 +11,10 @@ conda create --yes -n python3 python=3 pip
 
 echo '_add_path "/usr/local/miniconda3/envs/python2/bin/"' >> /etc/rbbt_environment
 echo '_add_path "/usr/local/miniconda3/envs/python3/bin/"' >> /etc/rbbt_environment
+echo '' >> /etc/rbbt_environment
+echo '# Setup conda environment' >> /etc/rbbt_environment
+echo 'export CONDA_PKGS_DIRS=~/tmp/conda/pkgs' >> /etc/rbbt_environment
+echo '. /usr/local/miniconda3/etc/profile.d/conda.sh' >> /etc/rbbt_environment
 
 rm -Rf /usr/local/miniconda3/pkgs
 source /etc/rbbt_environment

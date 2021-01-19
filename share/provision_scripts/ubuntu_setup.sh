@@ -76,14 +76,14 @@ DEBIAN_FRONTEND=noninteractive apt-get -y install \
   vim \
   wget \
   libc6 \
-  time numactl \
+  time numactl xvfb \
   bison autoconf g++ libxslt1-dev make \
   zlib1g-dev libbz2-dev libreadline-dev \
   rsync wget curl git openssl libyaml-0-2 libyaml-dev \
   openjdk-8-jdk \
   libcairo2 libcairo2-dev r-base-core r-base-dev r-cran-rserve liblzma5 liblzma-dev libcurl4-openssl-dev \
   build-essential zlib1g-dev libssl-dev libyaml-dev libffi-dev \
-  python3 python \
+  python3 python libtorch \
   tcsh gawk \
   pandoc \
   libtbb-dev

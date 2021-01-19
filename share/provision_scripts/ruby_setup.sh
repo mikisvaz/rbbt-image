@@ -13,7 +13,7 @@ cd /tmp/ruby-install
 wget https://cache.ruby-lang.org/pub/ruby/$_small_version/ruby-${RUBY_VERSION}.tar.gz -O "ruby.tar.gz"
 tar -xvzf ruby.tar.gz
 cd ruby-*/
-./configure --prefix=/usr/local
+./configure --prefix=/usr/local --enable-shared
 make && make install
 
 unset _small_version

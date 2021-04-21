@@ -85,6 +85,7 @@ DEBIAN_FRONTEND=noninteractive apt-get -y install \
   build-essential zlib1g-dev libssl-dev libyaml-dev libffi-dev \
   python3 python libtorch \
   tcsh gawk \
+  ansible \
   pandoc \
   libtbb-dev
 

@@ -198,12 +198,16 @@ if [[ '#{ USER }' == 'root' ]] ; then
 else
   useradd -ms /bin/bash #{USER}
   home_dir='/home/#{USER}'
+
+  if [ -d /usr/local/miniconda3 ]; then
+    chgrp #{USER} -R /usr/local/miniconda3
+    chmod g+rw -R /usr/local/miniconda3
+  fi
 fi
 
 user_script=$home_dir/.rbbt/bin/config_user
 mkdir -p $(dirname $user_script)
-chown -R #{USER} /home/#{USER}/.rbbt/
-
+chown -R #{USER} $home_dir/.rbbt/
 
 # set user configuration script
 cat > $user_script <<'EUSER'
@@ -252,6 +256,7 @@ user_script=$home_dir/.rbbt/bin/bootstrap
 cat > $user_script <<'EUSER'
 
 . /etc/profile
+. /etc/rbbt_environment
 
 echo "5.1. Loading custom variables"
 #{
@@ -358,8 +363,7 @@ EOS
   chmod +x /.singularity.d/env/99-rbbt_environment.sh
   bash -c '[ -d /usr/local/share ] || mkdir -p /usr/local/share' 
   bash -c '[ -d /software/rbbt ] || mkdir -p /software/rbbt'
-  bash -c '[ -d /home/#{USER}/.rbbt/var/ ] && mv /home/#{USER}/.rbbt/var/ /var/rbbt' || echo -n ""
-  bash -c '[ -d /home/#{USER}/.rbbt/var/ ] && mv /home/#{USER}/.rbbt/var/ /var/rbbt' || echo -n ""
+  #bash -c '[ -d /home/#{USER}/.rbbt/var/ ] && mv /home/#{USER}/.rbbt/var/ /var/rbbt' || echo -n ""
   bash -c '[ -d /home/#{USER}/.rbbt/share/ ] && mv /home/#{USER}/.rbbt/share/ /usr/local/share/rbbt' || echo -n ""
   bash -c '[ -d /home/#{USER}/.rbbt/software/opt ] && mv /home/#{USER}/.rbbt/software/opt /software/rbbt/opt' || echo -n ""
   bash -c '[ -d /home/#{USER}/.rbbt/software/src ] && mv /home/#{USER}/.rbbt/software/src /software/rbbt/src' || echo -n ""

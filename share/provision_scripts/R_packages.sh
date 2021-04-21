@@ -44,6 +44,8 @@ echo 'install.packages("Rserve", repos="http://www.rforge.net/")' | R --vanilla
 R_install_packages pheatmap VennDiagram Hmisc pls gridSVG
 R_install_packages tidyverse
 
+R_install_packages UpSetR
+
 R_biocLite limma viper
 
 R_install_packages pROC txtplot

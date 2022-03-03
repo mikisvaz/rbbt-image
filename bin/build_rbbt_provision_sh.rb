@@ -365,6 +365,7 @@ EOS
   bash -c '[ -d /software/rbbt ] || mkdir -p /software/rbbt'
   #bash -c '[ -d /home/#{USER}/.rbbt/var/ ] && mv /home/#{USER}/.rbbt/var/ /var/rbbt' || echo -n ""
   bash -c '[ -d /home/#{USER}/.rbbt/share/ ] && mv /home/#{USER}/.rbbt/share/ /usr/local/share/rbbt' || echo -n ""
+  bash -c '[ -d /home/#{USER}/.rbbt/workflows/ ] && mv /home/#{USER}/.rbbt/share/ /usr/local/workflows/rbbt' || echo -n ""
   bash -c '[ -d /home/#{USER}/.rbbt/software/opt ] && mv /home/#{USER}/.rbbt/software/opt /software/rbbt/opt' || echo -n ""
   bash -c '[ -d /home/#{USER}/.rbbt/software/src ] && mv /home/#{USER}/.rbbt/software/src /software/rbbt/src' || echo -n ""
   bash -c '[ -d /home/#{USER}/.rbbt/software/scm ] && mv /home/#{USER}/.rbbt/software/scm /software/rbbt/scm' || echo -n ""

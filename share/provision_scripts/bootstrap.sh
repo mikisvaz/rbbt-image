@@ -5,6 +5,18 @@
 
 for workflow in $BOOTSTRAP_WORKFLOWS; do
     rbbt workflow install $workflow 
+
+    pip_requirements_file=$(rbbt_find.rb -w $workflow requirements.pip --nocolor)
+    [ -f $pip_requirements_file ] && echo PIP $pip_requirements_file && pip install -r $pip_requirements_file
+    unset pip_requirements_file
+
+    pip_requirements_file2=$(rbbt_find.rb -w $workflow requirements.pip2 --nocolor)
+    [ -f $pip_requirements_file2 ] && pip install -r $pip_requirements_file2
+    unset pip_requirements_file2
+
+    pip_requirements_file3=$(rbbt_find.rb -w $workflow requirements.pip3 --nocolor)
+    [ -f $pip_requirements_file3 ] && pip install -r $pip_requirements_file3
+    unset pip_requirements_file3
 done
 
 export RBBT_WORKFLOW_AUTOINSTALL=true

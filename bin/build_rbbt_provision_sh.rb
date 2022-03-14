@@ -379,11 +379,11 @@ EOF
     cmd_boot =  "singularity build #{singularity_image} '#{dir["singularity_bootstrap"]}'"
 
 
-    puts "**************"
-    puts "CREATING IMAGE: #{dir["singularity_bootstrap"].find}"
-    puts "**************"
-    puts cmd_create
-    CMD.cmd_log(cmd_create, :log => 4)
+    #puts "**************"
+    #puts "CREATING IMAGE: #{dir["singularity_bootstrap"].find}"
+    #puts "**************"
+    #puts cmd_create
+    #CMD.cmd_log(cmd_create, :log => 4)
 
     puts "**************"
     puts "BUILDING IMAGE: #{dir["singularity_bootstrap"].find}"

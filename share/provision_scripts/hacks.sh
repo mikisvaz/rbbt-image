@@ -1,2 +1,2 @@
 # For BNReduction work
-ln -s /bin/sed /usr/bin/sed
+#ln -s /bin/sed /usr/bin/sed

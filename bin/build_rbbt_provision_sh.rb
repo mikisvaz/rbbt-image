@@ -362,10 +362,12 @@ EOS
   ln -s /etc/rbbt_environment /.singularity.d/env/99-rbbt_environment.sh 
   chmod +x /.singularity.d/env/99-rbbt_environment.sh
   bash -c '[ -d /usr/local/share ] || mkdir -p /usr/local/share' 
+  bash -c '[ -d /usr/local/workflows ] || mkdir -p /usr/local/workflows' 
   bash -c '[ -d /software/rbbt ] || mkdir -p /software/rbbt'
   #bash -c '[ -d /home/#{USER}/.rbbt/var/ ] && mv /home/#{USER}/.rbbt/var/ /var/rbbt' || echo -n ""
+  bash -c '[ -d /home/#{USER}/.rbbt/var/ ] && rm -Rf /home/#{USER}/.rbbt/var/' || echo -n ""
   bash -c '[ -d /home/#{USER}/.rbbt/share/ ] && mv /home/#{USER}/.rbbt/share/ /usr/local/share/rbbt' || echo -n ""
-  bash -c '[ -d /home/#{USER}/.rbbt/workflows/ ] && mv /home/#{USER}/.rbbt/share/ /usr/local/workflows/rbbt' || echo -n ""
+  bash -c '[ -d /home/#{USER}/.rbbt/workflows/ ] && mv /home/#{USER}/.rbbt/workflows/ /usr/local/workflows/rbbt' || echo -n ""
   bash -c '[ -d /home/#{USER}/.rbbt/software/opt ] && mv /home/#{USER}/.rbbt/software/opt /software/rbbt/opt' || echo -n ""
   bash -c '[ -d /home/#{USER}/.rbbt/software/src ] && mv /home/#{USER}/.rbbt/software/src /software/rbbt/src' || echo -n ""
   bash -c '[ -d /home/#{USER}/.rbbt/software/scm ] && mv /home/#{USER}/.rbbt/software/scm /software/rbbt/scm' || echo -n ""

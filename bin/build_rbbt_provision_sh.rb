@@ -30,6 +30,7 @@ $ #{$0} [options]
 -sr--skip_ruby Skip ruby setup installation
 -sp--skip_perl Skip perl setup installation
 -spy--skip_python Skip python setup installation
+-spsl--skip_slurm_loopback Skip setting the slurm loopback
 -sg--skip_gem Skip ruby gem installation
 -sR--skip_R Skip R setup
 -su--skip_user_setup Skip user setup
@@ -72,6 +73,7 @@ SKIP_TOKYOCABINET= options[:skip_tokyocabinet]
 SKIP_RUBY = options[:skip_ruby]
 SKIP_PERL = options[:skip_perl]
 SKIP_PYTHON = options[:skip_python]
+SKIP_SLURM_LOOPBACK = options[:skip_slurm_loopback]
 R_CUSTOM = options[:R_custom]
 SKIP_R = options[:skip_R]
 SKIP_BOOT = options[:skip_bootstrap]
@@ -123,6 +125,8 @@ end
 if not SKIP_BASE_SYSTEM and R_CUSTOM
   "echo 1.1 Setting custom R"
   File.read(script_dir + 'R_setup.sh') 
+else
+  "echo SKIPPED Custom R\necho"
 end 
 }
 
@@ -130,6 +134,8 @@ end
 if not SKIP_R 
   "echo 1.2 Install R packages"
   File.read(script_dir + 'R_packages.sh') 
+else
+  "echo SKIPPED installing R packages\necho"
 end 
 }
 
@@ -138,7 +144,7 @@ echo "2. Setting up tokyocabinet"
 if not SKIP_TOKYOCABINET
   File.read(script_dir + 'tokyocabinet_setup.sh')
 else
-  "echo SKIPPED\necho"
+  "echo SKIPPED TokyoCabinet\necho"
 end
 }
 
@@ -147,7 +153,7 @@ echo "3. Setting up ruby"
 if not SKIP_RUBY
   "export RUBY_VERSION='#{options[:ruby_version]}'\n" << File.read(script_dir + 'ruby_setup.sh') 
 else
-  "echo SKIPPED\necho"
+  "echo SKIPPED Ruby\necho"
 end 
 }
 
@@ -157,7 +163,7 @@ echo "3.1. Setting up gems"
 if not SKIP_GEM
   File.read(script_dir + 'gem_setup.sh') 
 else
-  "echo SKIPPED\necho"
+  "echo SKIPPED Ruby gems\necho"
 end 
 }
 
@@ -167,7 +173,7 @@ echo "4.1 Setting up perl"
 if not SKIP_PERL
   File.read(script_dir + 'perl_setup.sh') 
 else
-  "echo SKIPPED\necho"
+  "echo SKIPPED Perl\necho"
 end 
 }
 
@@ -176,7 +182,16 @@ echo "4.2 Setting up python"
 if not SKIP_PYTHON
   File.read(script_dir + 'python_setup.sh') 
 else
-  "echo SKIPPED\necho"
+  "echo SKIPPED Python\necho"
+end 
+}
+
+echo "4.3 Setting up SLURM loopback"
+#{
+if not SKIP_SLURM_LOOPBACK
+  File.read(script_dir + 'slurm_loopback.sh') 
+else
+  "echo SKIPPED SLURM lookback\necho"
 end 
 }
 
@@ -185,7 +200,7 @@ echo "source /etc/rbbt_environment" >> /etc/profile
 EOF
 
 provision_script +=<<-EOF
-echo "4. Configuring user"
+echo "5. Configuring user"
 EOF
 
 if not SKIP_USER
@@ -214,31 +229,31 @@ cat > $user_script <<'EUSER'
 
 . /etc/profile
 
-echo "4.1. Loading custom variables"
+echo "5.1. Loading custom variables"
 #{
   VARIABLES.collect do |variable,value|
     "export " << ([variable,'"' << value.to_s << '"'] * "=")
   end * "\n"
 }
 
-echo "4.2. Loading default variables"
+echo "5.2. Loading default variables"
 #{File.read(script_dir + 'variables.sh')}
 
-echo "4.3. Configuring rbbt"
+echo "5.3. Configuring rbbt"
 #{File.read(script_dir + 'user_setup.sh')}
 EUSER
 
-echo "4.4. Running user configuration as '#{USER}'"
+echo "5.4. Running user configuration as '#{USER}'"
 chown #{USER} $user_script;
 su -l -c "bash $user_script" #{USER}
 
   EOF
 else
-  provision_script += "echo SKIPPED\necho\n\n"
+  provision_script += "echo SKIPPED user configuration\necho\n\n"
 end
 
 provision_script +=<<-EOF
-echo "5. Bootstrapping workflows as '#{USER}'"
+echo "6. Bootstrapping workflows as '#{USER}'"
 echo
 EOF
 
@@ -258,20 +273,20 @@ cat > $user_script <<'EUSER'
 . /etc/profile
 . /etc/rbbt_environment
 
-echo "5.1. Loading custom variables"
+echo "6.1. Loading custom variables"
 #{
   VARIABLES.collect do |variable,value|
     "export " << ([variable,'"' << value.to_s << '"'] * "=")
   end * "\n"
 }
 
-echo "5.2. Loading default variables"
+echo "6.2. Loading default variables"
 #{File.read(script_dir + 'variables.sh')}
 
-echo "5.3. Configuring rbbt"
+echo "6.3. Configuring rbbt"
 #{File.read(script_dir + 'user_setup.sh')}
 #
-echo "5.4. Install and bootstrap"
+echo "6.4. Install and bootstrap"
 #{File.read(script_dir + "bootstrap.sh")}
 EUSER
 
@@ -280,7 +295,7 @@ su -l -c "bash $user_script" #{USER}
 
   EOF
 else
-  provision_script += "echo SKIPPED\necho\n\n"
+  provision_script += "echo SKIPPED User configuration\necho\n\n"
 end
 
 provision_script +=<<-EOF
@@ -397,6 +412,7 @@ EOF
 end
 
 if options[:virtualbox]
+  container_dependency = options[:container_dependency] || 'ubuntu:focal'
   TmpFile.with_file(nil, false) do |dir|
     Path.setup(dir)
 
@@ -423,11 +439,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 end
     EOF
 
+    Log.debug "Running vagrant on #{dir}"
     Misc.in_dir(dir) do
-      io = CMD.cmd('vagrant up', :pipe => true, :log => true)
-      while line = io.gets
-        puts line
-      end
+      CMD.cmd_log(:vagrant, "up")
     end
   end
 end

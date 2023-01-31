@@ -31,6 +31,7 @@ rbbt-image=/$PWD filter="*" {
    ruby_setup.sh
    tokyocabinet_setup.sh
    ubuntu_setup.sh
+   slurm_loopback.sh
    user_setup.sh
    variables.sh
   }

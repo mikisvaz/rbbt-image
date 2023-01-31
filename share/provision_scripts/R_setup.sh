@@ -7,7 +7,7 @@ cd /tmp
 
 apt-get remove r-base-core
 
-wget https://cran.rediris.es/src/base/R-3/R-3.6.1.tar.gz -O R.tar.gz
+wget https://cran.r-project.org/src/base/R-4/R-4.2.1.tar.gz -O R.tar.gz
 tar -xvzf R.tar.gz
 
 cd R-*/

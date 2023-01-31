@@ -27,7 +27,7 @@ echo "* Installing bulk gems and Rbbt"
 gem install --no-document --force \
     tokyocabinet \
     ruby-prof \
-    rbbt-util rbbt-rest rbbt-dm rbbt-text rbbt-sources rbbt-phgx rbbt-GE \
+    rbbt-util rbbt-rest rbbt-dm rbbt-text rbbt-sources \
     rserve-client \
 
 # Get good version of lockfile
@@ -43,5 +43,4 @@ gem install --no-document --force \
     rbbt-util rbbt-rest rbbt-dm rbbt-text rbbt-sources rbbt-phgx rbbt-GE \
     rserve-client \
     uglifier therubyracer kramdown pandoc pandoc-ruby \
-    puma prawn prawn-svg mimemagic \
-    torch-rb
+    puma prawn prawn-svg mimemagic 

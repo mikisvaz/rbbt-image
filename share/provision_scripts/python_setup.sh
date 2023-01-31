@@ -22,3 +22,4 @@ source /etc/rbbt_environment
 
 pip install ansible
 
+gem install pycall

@@ -20,20 +20,38 @@ rbbt-image=/$PWD filter="*" {
  }
  share=share{
   provision_scripts=provision_scripts filter="*"{
-   Dockerfile.R-packages
-   R_packages.sh
-   R_setup.sh
-   bootstrap.sh
-   gem_setup.sh
-   hacks.sh
-   perl_setup.sh
-   python_setup.sh
-   ruby_setup.sh
-   tokyocabinet_setup.sh
+   functions.sh
+
+   alpine_basic_setup.sh
+   alpine_setup.sh
+   alpine_extended_setup.sh
+
    ubuntu_setup.sh
+
+   tokyocabinet.sh
+
+   ruby_custom.sh
+   gem.sh
+
+   python_custom.sh
+   python.sh
+
+   R_custom.sh
+   R.sh
+
+   java.sh
+
+   perl_custom.sh
+
    slurm_loopback.sh
-   user_setup.sh
+   hacks.sh
+
+   user.sh
    variables.sh
+   bootstrap.sh
+   migrate.sh
+
+   Dockerfile.R-packages
   }
  }
 }

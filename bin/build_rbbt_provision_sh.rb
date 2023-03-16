@@ -25,19 +25,10 @@ $ #{$0} [options]
 -ws--workflow_server* Rbbt remote workflow server
 -rr--remote_resources* Remote resources to gather from file-server
 -rw--remote_workflows* Remote workflows server from workflow-server
--ss--skip_base_system Skip base system installation
--st--skip_tokyocabinet Skip tokyocabinet setup installation
--sr--skip_ruby Skip ruby setup installation
--sp--skip_perl Skip perl setup installation
--spy--skip_python Skip python setup installation
--spsl--skip_slurm_loopback Skip setting the slurm loopback
--sg--skip_gem Skip ruby gem installation
--sR--skip_R Skip R setup
--su--skip_user_setup Skip user setup
--sb--skip_bootstrap Skip user bootstrap
--Rc--R_custom Install a custom installation of R
--Rp--R_packages Install basic R packages
+-bs--base_system* Version of base system initialization script to use (default: ubuntu)
 -Rbv--ruby_version* Ruby version to use, using three numbers (defaults to 2.4.1)
+-d--do* List of steps to do
+-nd--not_do* List of steps to not do
 -op--optimize Optimize files under ~/.rbbt
 -dep--container_dependency* Use a different image in Dockerfile, Singularity and Virtualbox
 -dt--docker* Build docker image using the provided name
@@ -67,27 +58,24 @@ script_dir = File.join(root_dir, "share/provision_scripts/")
 #  options[:skip_bootstrap] = true
 #end
 
-USER = options[:user] || 'rbbt'
-SKIP_BASE_SYSTEM = options[:skip_base_system]
-SKIP_TOKYOCABINET= options[:skip_tokyocabinet]
-SKIP_RUBY = options[:skip_ruby]
-SKIP_PERL = options[:skip_perl]
-SKIP_PYTHON = options[:skip_python]
-SKIP_SLURM_LOOPBACK = options[:skip_slurm_loopback]
-R_CUSTOM = options[:R_custom]
-SKIP_R = options[:skip_R]
-SKIP_BOOT = options[:skip_bootstrap]
-SKIP_USER = options[:skip_user_setup]
-SKIP_GEM = options[:skip_gem]
-OPTIMIZE = options[:optimize]
+all_steps = %w(functions base_system tokyocabinet ruby_custom gem java R_custom R perl_custom python_custom python user slurm_loopback hacks)
+
+
+do_steps = options.include?("do")? (all_steps & options[:do].split(",")) : all_steps
+not_do_steps = options.include?(:not_do)? options[:not_do].split(",") : all_steps - do_steps
+
+do_steps << 'base_system' if options[:base_system]
+
+OPTIMIZE    = options[:optimize] 
+USER        = options[:user] || 'rbbt'
+CONTAINER_DEP = options[:container_dependency] ||  'alpine'
+BASE_SYSTEM = options[:base_system] || CONTAINER_DEP
 
 VARIABLES={
- :RBBT_LOG => 0,
- :BOOTSTRAP_WORKFLOWS => (options[:workflow] || "").split(/[\s,]+/)*" ",
- :REMOTE_RESOURCES => (options[:remote_resources] || "KEGG").split(/[\s,]+/)*" "
+  :RBBT_LOG => 0,
+  :BOOTSTRAP_WORKFLOWS => (options[:workflow] || "").split(/[\s,]+/)*" ",
+  :REMOTE_RESOURCES => (options[:remote_resources] || "").split(/[\s,]+/)*" "
 }
-
-VARIABLES[:BOOTSTRAP_WORKFLOWS] = "" if VARIABLES[:BOOTSTRAP_WORKFLOWS] == 'none'
 
 VARIABLES[:RBBT_SERVER] = options[:server] if options[:server]
 VARIABLES[:RBBT_FILE_SERVER] = options[:file_server] if options[:file_server]
@@ -98,231 +86,88 @@ VARIABLES[:RBBT_NO_PROGRESS] = "true" if options[:nobar]
 
 options[:ruby_version] ||= "2.6.4"
 
-
 provision_script =<<-EOF
 #!/bin/bash -x
 
-echo "RUNNING PROVISION"
-echo
+# PROVISION FILE
 echo "CMD: #{File.basename($0) + " " + orig_argv.collect{|a| a =~ /\s/ ? "\'#{a}\'" : a }.join(" ")}"
-echo
-echo -n "Starting: "
-date
+
+test -f /etc/profile && source /etc/profile
+test -f /etc/rbbt_environment && source /etc/rbbt_environment
 
 EOF
 
-provision_script +=<<-EOF
-echo "1. Provisioning base system"
-#{
-if not SKIP_BASE_SYSTEM
-  File.read(script_dir + 'ubuntu_setup.sh') 
-else
-  "echo SKIPPED\necho"
-end 
-}
+all_steps.each_with_index do |step,i|
+  if ! do_steps.include?(step)
+    provision_script += "#" + "NOT DO #{step}\n"
+    next
+  end
 
-#{
-if not SKIP_BASE_SYSTEM and R_CUSTOM
-  "echo 1.1 Setting custom R"
-  File.read(script_dir + 'R_setup.sh') 
-else
-  "echo SKIPPED Custom R\necho"
-end 
-}
+  provision_script += "#" + "DO #{step}\n"
+  provision_script += case step
+                      when 'base_system'
+                        File.read(script_dir + "#{BASE_SYSTEM}_setup.sh") 
+                      when 'user'
+                        user_script =<<~EOF
+                          . /etc/profile
+                          . /etc/rbbt_environment
 
-#{
-if not SKIP_R 
-  "echo 1.2 Install R packages"
-  File.read(script_dir + 'R_packages.sh') 
-else
-  "echo SKIPPED installing R packages\necho"
-end 
-}
+                          echo "6.1. Loading custom variables"
+                          #{
+                          VARIABLES.collect do |variable,value|
+                            "export " << ([variable,'"' << value.to_s << '"'] * "=")
+                          end * "\n"
+                          }
 
-echo "2. Setting up tokyocabinet"
-#{
-if not SKIP_TOKYOCABINET
-  File.read(script_dir + 'tokyocabinet_setup.sh')
-else
-  "echo SKIPPED TokyoCabinet\necho"
-end
-}
+                          echo "6.2. Loading default variables"
+                          #{File.read(script_dir + 'variables.sh')}
 
-echo "3. Setting up ruby"
-#{
-if not SKIP_RUBY
-  "export RUBY_VERSION='#{options[:ruby_version]}'\n" << File.read(script_dir + 'ruby_setup.sh') 
-else
-  "echo SKIPPED Ruby\necho"
-end 
-}
+                          echo "6.3. Configuring rbbt"
+                          #{File.read(script_dir + 'user.sh')}
+                          
+                          echo "6.4. Install and bootstrap"
+                          #{File.read(script_dir + "bootstrap.sh")}
+                          
+                          echo "6.5. Migrate shared files"
+                          #{File.read(script_dir + "migrate.sh")}
+                        EOF
+
+                        <<~EOF
+                          if [[ '#{ USER }' == 'root' ]] ; then
+                            home_dir='/root'
+                          else
+                            adduser --disabled-password --gecos "" #{USER}
+                            addgroup rbbt
+                            adduser #{USER} rbbt
+                            home_dir='/home/#{USER}'
+                            chown -R #{USER} $home_dir/
+                          fi
+
+                          mkdir -p $home_dir/.rbbt/bin/
+                          user_script=$home_dir/.rbbt/bin/bootstrap
+                          chown -R #{USER} $home_dir/
+
+                          for d in /usr/local/var/rbbt /usr/local/share/rbbt /usr/local/workflows/rbbt /usr/local/software/rbbt; do
+                            mkdir -p $d
+                            chgrp rbbt $d
+                            chown rbbt $d
+                            chmod g+w $d
+                          done
+
+                          cat > $user_script <<'EUSER'
+                          #{user_script}
+                          EUSER
 
 
-echo "3.1. Setting up gems"
-#{
-if not SKIP_GEM
-  File.read(script_dir + 'gem_setup.sh') 
-else
-  "echo SKIPPED Ruby gems\necho"
-end 
-}
-
-echo "4 Setting up other stuff"
-echo "4.1 Setting up perl"
-#{
-if not SKIP_PERL
-  File.read(script_dir + 'perl_setup.sh') 
-else
-  "echo SKIPPED Perl\necho"
-end 
-}
-
-echo "4.2 Setting up python"
-#{
-if not SKIP_PYTHON
-  File.read(script_dir + 'python_setup.sh') 
-else
-  "echo SKIPPED Python\necho"
-end 
-}
-
-echo "4.3 Setting up SLURM loopback"
-#{
-if not SKIP_SLURM_LOOPBACK
-  File.read(script_dir + 'slurm_loopback.sh') 
-else
-  "echo SKIPPED SLURM lookback\necho"
-end 
-}
-
-echo "[ -f ~/.rbbt/etc/environment ] && . ~/.rbbt/etc/environment" >> "/etc/rbbt_environment"
-echo "source /etc/rbbt_environment" >> /etc/profile
-EOF
-
-provision_script +=<<-EOF
-echo "5. Configuring user"
-EOF
-
-if not SKIP_USER
-  provision_script +=<<-EOF
-####################
-# USER CONFIGURATION
-
-if [[ '#{ USER }' == 'root' ]] ; then
-  home_dir='/root'
-else
-  useradd -ms /bin/bash #{USER}
-  home_dir='/home/#{USER}'
-
-  if [ -d /usr/local/miniconda3 ]; then
-    chgrp #{USER} -R /usr/local/miniconda3
-    chmod g+rw -R /usr/local/miniconda3
-  fi
-fi
-
-user_script=$home_dir/.rbbt/bin/config_user
-mkdir -p $(dirname $user_script)
-chown -R #{USER} $home_dir/.rbbt/
-
-# set user configuration script
-cat > $user_script <<'EUSER'
-
-. /etc/profile
-
-echo "5.1. Loading custom variables"
-#{
-  VARIABLES.collect do |variable,value|
-    "export " << ([variable,'"' << value.to_s << '"'] * "=")
-  end * "\n"
-}
-
-echo "5.2. Loading default variables"
-#{File.read(script_dir + 'variables.sh')}
-
-echo "5.3. Configuring rbbt"
-#{File.read(script_dir + 'user_setup.sh')}
-EUSER
-
-echo "5.4. Running user configuration as '#{USER}'"
-chown #{USER} $user_script;
-su -l -c "bash $user_script" #{USER}
-
-  EOF
-else
-  provision_script += "echo SKIPPED user configuration\necho\n\n"
+                          su -l -c "sh $user_script" #{USER}
+                        EOF
+                      else
+                        File.read(script_dir + "#{step}.sh") 
+                      end
 end
 
-provision_script +=<<-EOF
-echo "6. Bootstrapping workflows as '#{USER}'"
-echo
-EOF
-
-if not SKIP_BOOT
-  provision_script +=<<-EOF
-
-if [[ '#{ USER }' == 'root' ]] ; then
-  home_dir='/root'
-else
-  home_dir='/home/#{USER}'
-fi
-
-user_script=$home_dir/.rbbt/bin/bootstrap
-
-cat > $user_script <<'EUSER'
-
-. /etc/profile
-. /etc/rbbt_environment
-
-echo "6.1. Loading custom variables"
-#{
-  VARIABLES.collect do |variable,value|
-    "export " << ([variable,'"' << value.to_s << '"'] * "=")
-  end * "\n"
-}
-
-echo "6.2. Loading default variables"
-#{File.read(script_dir + 'variables.sh')}
-
-echo "6.3. Configuring rbbt"
-#{File.read(script_dir + 'user_setup.sh')}
-#
-echo "6.4. Install and bootstrap"
-#{File.read(script_dir + "bootstrap.sh")}
-EUSER
-
-chown #{USER} $user_script;
-su -l -c "bash $user_script" #{USER}
-
-  EOF
-else
-  provision_script += "echo SKIPPED User configuration\necho\n\n"
-end
-
-provision_script +=<<-EOF
-# HACKS
-# =====
-
-#{File.read(script_dir + 'hacks.sh')}
-EOF
-
-provision_script +=<<-EOF
-# CODA
-# ====
-
-apt-get clean
-rm -rf /var/lib/apt/lists/* /var/tmp/* /usr/share/doc /usr/share/man /usr/local/share/ri
-
-#{ "su -l -c 'rbbt system optimize /home/#{USER}/.rbbt ' #{USER}" if OPTIMIZE}
-
-echo
-echo -n "Installation done: "
-date
-
-EOF
-
-
-if docker_image = options[:docker]
-  container_dependency = options[:container_dependency] || 'ubuntu:focal'
+if docker_image = options[:docker] 
+  container_dependency = CONTAINER_DEP
   dockerfile = options[:dockerfile] || File.join(root_dir, 'Dockerfile')
   dockerfile_text = Open.read(dockerfile)
   dockerfile_text.sub!(/^FROM.*/,'FROM ' + container_dependency) if container_dependency
@@ -359,33 +204,42 @@ end
 
 if singularity_image = options[:singularity]
 
-  container_dependency = options[:container_dependency] || 'ubuntu:focal'
+  container_dependency = CONTAINER_DEP
   TmpFile.with_file(nil, false) do |dir|
     Path.setup(dir)
 
     provision_file = dir['provision.sh']
 
-    bootstrap_text=<<-EOF
+    if container_dependency.include? '.sif'
+      bootstrap_text=<<-EOF
+Bootstrap: localimage
+From: #{container_dependency}
+EOF
+    else
+      bootstrap_text=<<-EOF
 Bootstrap: docker
 From: #{container_dependency}
+EOF
+    end
 
+    bootstrap_text+=<<-EOF
 %post
   cat > /image_provision.sh <<"EOS"
   #{provision_script}
 EOS
-  bash -x /image_provision.sh 2>&1 | tee /image_provision.log
-  ln -s /etc/rbbt_environment /.singularity.d/env/99-rbbt_environment.sh 
+  sh -x /image_provision.sh 2>&1 | tee /image_provision.log
+  bash -c '[ -f /.singularity.d/env/99-rbbt_environment.sh ] || ln -s /etc/rbbt_environment /.singularity.d/env/99-rbbt_environment.sh'
   chmod +x /.singularity.d/env/99-rbbt_environment.sh
-  bash -c '[ -d /usr/local/share ] || mkdir -p /usr/local/share' 
-  bash -c '[ -d /usr/local/workflows ] || mkdir -p /usr/local/workflows' 
-  bash -c '[ -d /software/rbbt ] || mkdir -p /software/rbbt'
+  #bash -c '[ -d /usr/local/share ] || mkdir -p /usr/local/share' 
+  #bash -c '[ -d /usr/local/workflows ] || mkdir -p /usr/local/workflows' 
+  #bash -c '[ -d /software/rbbt ] || mkdir -p /software/rbbt'
   #bash -c '[ -d /home/#{USER}/.rbbt/var/ ] && mv /home/#{USER}/.rbbt/var/ /var/rbbt' || echo -n ""
-  bash -c '[ -d /home/#{USER}/.rbbt/var/ ] && rm -Rf /home/#{USER}/.rbbt/var/' || echo -n ""
-  bash -c '[ -d /home/#{USER}/.rbbt/share/ ] && mv /home/#{USER}/.rbbt/share/ /usr/local/share/rbbt' || echo -n ""
-  bash -c '[ -d /home/#{USER}/.rbbt/workflows/ ] && mv /home/#{USER}/.rbbt/workflows/ /usr/local/workflows/rbbt' || echo -n ""
-  bash -c '[ -d /home/#{USER}/.rbbt/software/opt ] && mv /home/#{USER}/.rbbt/software/opt /software/rbbt/opt' || echo -n ""
-  bash -c '[ -d /home/#{USER}/.rbbt/software/src ] && mv /home/#{USER}/.rbbt/software/src /software/rbbt/src' || echo -n ""
-  bash -c '[ -d /home/#{USER}/.rbbt/software/scm ] && mv /home/#{USER}/.rbbt/software/scm /software/rbbt/scm' || echo -n ""
+  #bash -c '[ -d /home/#{USER}/.rbbt/var/ ] && rm -Rf /home/#{USER}/.rbbt/var/' || echo -n ""
+  #bash -c '[ -d /home/#{USER}/.rbbt/share/ ] && mv /home/#{USER}/.rbbt/share/ /usr/local/share/rbbt' || echo -n ""
+  #bash -c '[ -d /home/#{USER}/.rbbt/workflows/ ] && mv /home/#{USER}/.rbbt/workflows/ /usr/local/workflows/rbbt' || echo -n ""
+  #bash -c '[ -d /home/#{USER}/.rbbt/software/opt ] && mv /home/#{USER}/.rbbt/software/opt /software/rbbt/opt' || echo -n ""
+  #bash -c '[ -d /home/#{USER}/.rbbt/software/src ] && mv /home/#{USER}/.rbbt/software/src /software/rbbt/src' || echo -n ""
+  #bash -c '[ -d /home/#{USER}/.rbbt/software/scm ] && mv /home/#{USER}/.rbbt/software/scm /software/rbbt/scm' || echo -n ""
 EOF
     FileUtils.mkdir_p dir
     Open.write(dir["singularity_bootstrap"].find, bootstrap_text)
@@ -412,7 +266,7 @@ EOF
 end
 
 if options[:virtualbox]
-  container_dependency = options[:container_dependency] || 'ubuntu:focal'
+  container_dependency = CONTAINER_DEP
   TmpFile.with_file(nil, false) do |dir|
     Path.setup(dir)
 

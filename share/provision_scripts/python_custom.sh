@@ -20,6 +20,3 @@ echo '. /usr/local/miniconda3/etc/profile.d/conda.sh' >> /etc/rbbt_environment
 rm -Rf /usr/local/miniconda3/pkgs
 source /etc/rbbt_environment
 
-pip install ansible
-
-gem install pycall

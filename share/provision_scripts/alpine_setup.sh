@@ -7,8 +7,9 @@ apk add bash wget curl rsync gnu-libiconv  # Tools
 gem install rbbt-util rbbt-sources
 gem install RubyInline
 
-gem install specific_install
+gem install specific_install hoe minitest
 gem specific_install -l https://github.com/mikisvaz/lockfile.git
+gem specific_install -l https://github.com/mikisvaz/rubyinline.git
 
 rm -Rf /usr/lib/ruby/gems/*/doc /usr/lib/ruby/gems/*/cache
 
@@ -17,4 +18,3 @@ grep rbbt_environment /etc/profile || echo echo "source /etc/rbbt_environment" >
 
 # Main alpine setup
 apk add xvfb bison autoconf rsync curl openssl numactl zlib-dev zlib yaml-dev openssl xz-dev xz-libs libffi tcsh gawk pandoc libtbb-dev yaml libxml2-dev libxml2 shared-mime-info
-

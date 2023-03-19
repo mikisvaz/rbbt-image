@@ -65,6 +65,7 @@ do_steps = options.include?("do")? (all_steps & options[:do].split(",")) : all_s
 not_do_steps = options.include?(:not_do)? options[:not_do].split(",") : all_steps - do_steps
 
 do_steps << 'base_system' if options[:base_system]
+do_steps << 'user' if options[:workflow]
 
 OPTIMIZE    = options[:optimize] 
 USER        = options[:user] || 'rbbt'

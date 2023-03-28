@@ -1,8 +1,8 @@
 # Basic alpine setup
 apk add ruby ruby-dev  # Ruby
 apk add git make gcc g++ cmake # Building
-apk add bzip2 bzip2-dev zlib zlib-dev # Libs
-apk add bash wget curl rsync gnu-libiconv  # Tools
+apk add bzip2 bzip2-dev zlib zlib-dev krb5 gcompat # Libs
+apk add bash openssh-client wget curl rsync gnu-libiconv  # Tools
 
 gem install rbbt-util rbbt-sources
 gem install RubyInline
@@ -23,6 +23,9 @@ apk add xvfb bison autoconf rsync curl openssl numactl zlib-dev zlib yaml-dev op
 apk add openjdk17 R R-dev python3 python3-dev py3-pip ansible
 
 apk add fontconfig fontconfig-dev harfbuzz fribidi harfbuzz-dev fribidi-dev jpeg jpeg-dev tiff tiff-dev cairo cairo-dev libxt-dev libxt
+
+# Allow USER to install things globaly during bootstrap
+chmod 777 -R /usr/lib/python*/site-packages
 
 gem install pycall
 

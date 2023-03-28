@@ -231,6 +231,8 @@ EOS
   sh -x /image_provision.sh 2>&1 | tee /image_provision.log
   bash -c '[ -f /.singularity.d/env/99-rbbt_environment.sh ] || ln -s /etc/rbbt_environment /.singularity.d/env/99-rbbt_environment.sh'
   chmod +x /.singularity.d/env/99-rbbt_environment.sh
+  #bash -c '[ -d /home/#{USER}/.local/lib/ ] && (rsync -av /home/#{USER}/.local/lib/ /usr/lib/' && chmod 755 /usr/lib/python*/site-packages/ && chown -R root /usr/lib/python*/site-packages/ && rm /home/#{USER}/.local/lib/) || echo -n ""
+  #bash -c '[ -d /usr/local/share ] || mkdir -p /usr/local/share' 
   #bash -c '[ -d /usr/local/share ] || mkdir -p /usr/local/share' 
   #bash -c '[ -d /usr/local/workflows ] || mkdir -p /usr/local/workflows' 
   #bash -c '[ -d /software/rbbt ] || mkdir -p /software/rbbt'

@@ -1,8 +1,8 @@
 # Basic alpine setup
 apk add ruby ruby-dev  # Ruby
 apk add git make gcc g++ cmake # Building
-apk add bzip2 bzip2-dev zlib zlib-dev # Libs
-apk add bash wget curl rsync gnu-libiconv  # Tools
+apk add bzip2 bzip2-dev zlib zlib-dev krb5 gcompat # Libs
+apk add bash openssh-client wget curl rsync gnu-libiconv  # Tools
 
 gem install rbbt-util rbbt-sources
 gem install RubyInline

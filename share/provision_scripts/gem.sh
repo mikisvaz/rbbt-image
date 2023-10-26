@@ -30,7 +30,7 @@ gem install --no-document --force \
 echo "* Installing extra gems for web stuff"
 # Extra things for web interface
 gem install --no-document \
-    sinatra puma \
+    sinatra puma rack \
     rest-client \
     kramdown pandoc pandoc-ruby \
     spreadsheet rubyXL \

@@ -1,68 +1,3 @@
-#!/bin/bash -x
-
-# INSTALL
-# =======
-
-#cat << 'EOF' > /etc/rbbt_environment 
-#_var_content(){
-#    var=$1
-#    eval echo "$"$(echo $var)
-#}
-#
-#_append_with_colon(){
-#    var=$1
-#    value=$2
-#
-#    current=`_var_content $var`
-#
-#    if ! echo $current | grep "\(^\|:\)$value\(:\|$\)" >/dev/null 2>&1; then
-#        eval $(echo $var)="\"$current:$value\""
-#    fi
-#}
-#
-#_append_with_space(){
-#    var=$1
-#    value=$2
-#
-#    current=`_var_content $var`
-#
-#    if ! echo $current | grep "\(^\| \)$value\( \|$\)" >/dev/null 2>&1; then
-#        eval $(echo $var)="\"$current:$value\""
-#    fi
-#}
-#
-#_prepend_with_colon(){
-#    var=$1
-#    value=$2
-#
-#    current=`_var_content $var`
-#
-#    if ! echo $current | grep "\(^\|:\)$value\(:\|$\)" >/dev/null 2>&1; then
-#        eval $(echo $var)="\"$value:$current\""
-#    fi
-#}
-#
-#_prepend_with_space(){
-#    var=$1
-#    value=$2
-#
-#    current=`_var_content $var`
-#
-#    if ! echo $current | grep "\(^\| \)$value\( \|$\)" >/dev/null 2>&1; then
-#        eval $(echo $var)="\"$value $current\""
-#    fi
-#}
-#
-#_add_path(){
-#  _prepend_with_colon PATH "${1%/}"
-#}
-#
-#_add_libpath(){
-#  _prepend_with_colon LD_LIBRARY_PATH "${1%/}"
-#  _prepend_with_colon LD_RUN_PATH "${1%/}"
-#}
-#EOF
-
 # Basic system requirements
 # -------------------------
 apt-get -y update
@@ -71,7 +6,6 @@ apt-get -y install software-properties-common
 apt-get -y update
 apt-get -y update
 DEBIAN_FRONTEND=noninteractive apt-get -y install \
-  vim \
   wget \
   libc6 \
   time numactl xvfb \
@@ -95,6 +29,8 @@ apt-get -y install cmake
 # For paradigm/libdai
 apt-get -y install \
   libgmp-dev libboost-all-dev 
+
+apt-get install ruby ruby-dev
 
 # This link was broken for some reason
 rm /usr/lib/R/bin/Rserve

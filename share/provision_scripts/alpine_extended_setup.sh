@@ -4,6 +4,8 @@ apk add git make gcc g++ cmake # Building
 apk add bzip2 bzip2-dev zlib zlib-dev krb5 gcompat # Libs
 apk add bash openssh-client wget curl rsync gnu-libiconv  # Tools
 
+echo $CUSTOM_SYSTEM_PACKAGES | sed 's/,/\n/g' | xargs apk add
+
 gem install rbbt-util rbbt-sources
 gem install RubyInline
 

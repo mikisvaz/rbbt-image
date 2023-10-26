@@ -39,6 +39,8 @@ $ #{$0} [options]
 -dv--docker_volumnes* List of volumes to set-up in Docker
 --nocolor Prevent rbbt from using colors and control sequences in the logs while provisioning
 --nobar Prevent rbbt from using progress bars while provisioning
+-g--gems* Custom gems to install
+-sp--system_packages* Custom system packages
 EOF
 
 if options[:help]
@@ -58,8 +60,7 @@ script_dir = File.join(root_dir, "share/provision_scripts/")
 #  options[:skip_bootstrap] = true
 #end
 
-all_steps = %w(functions base_system tokyocabinet ruby_custom gem java R_custom R perl_custom python_custom python user slurm_loopback hacks)
-
+all_steps = %w(functions base_system tokyocabinet ruby_custom gem custom_gems java R_custom R R_packages perl_custom python_custom python user slurm_loopback hacks)
 
 do_steps = options.include?("do")? (all_steps & options[:do].split(",")) : all_steps
 not_do_steps = options.include?(:not_do)? options[:not_do].split(",") : all_steps - do_steps
@@ -85,7 +86,11 @@ VARIABLES[:REMOTE_WORKFLOWS] = options[:remote_workflows].split(/[\s,]+/)*" " if
 VARIABLES[:RBBT_NOCOLOR] = "true" if options[:nocolor]
 VARIABLES[:RBBT_NO_PROGRESS] = "true" if options[:nobar]
 
-options[:ruby_version] ||= "2.6.4"
+VARIABLES[:RUBY_VERSION] = options[:ruby_version] ||= "2.6.4"
+VARIABLES[:CUSTOM_GEMS] = options[:gems]
+VARIABLES[:CUSTOM_SYSTEM_PACKAGES] = options[:system_packages]
+
+do_steps << 'custom_gems' if options[:gems]
 
 provision_script =<<-EOF
 #!/bin/bash -x
@@ -93,9 +98,14 @@ provision_script =<<-EOF
 # PROVISION FILE
 echo "CMD: #{File.basename($0) + " " + orig_argv.collect{|a| a =~ /\s/ ? "\'#{a}\'" : a }.join(" ")}"
 
-test -f /etc/profile && source /etc/profile
-test -f /etc/rbbt_environment && source /etc/rbbt_environment
+test -f /etc/profile && . /etc/profile
+test -f /etc/rbbt_environment && . /etc/rbbt_environment
 
+#{
+VARIABLES.collect do |variable,value|
+  "export " << ([variable,'"' << value.to_s << '"'] * "=")
+end * "\n"
+}
 EOF
 
 all_steps.each_with_index do |step,i|
@@ -128,9 +138,11 @@ all_steps.each_with_index do |step,i|
                           
                           echo "6.4. Install and bootstrap"
                           #{File.read(script_dir + "bootstrap.sh")}
-                          
+                          #
                           echo "6.5. Migrate shared files"
                           #{File.read(script_dir + "migrate.sh")}
+                          
+                          rm -Rf ~/.rbbt/tmp/
                         EOF
 
                         <<~EOF
@@ -159,8 +171,9 @@ all_steps.each_with_index do |step,i|
                           #{user_script}
                           EUSER
 
-
+                          chmod 777 -R /usr/local/
                           su -l -c "sh $user_script" #{USER}
+
                         EOF
                       else
                         File.read(script_dir + "#{step}.sh") 

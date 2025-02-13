@@ -12,6 +12,7 @@ apt-get -y install \
   libxml2-dev libfontconfig1-dev \
   liblzma5 liblzma-dev libcurl4-openssl-dev \
   build-essential zlib1g-dev libssl-dev libyaml-dev libffi-dev \
+  locales \
   bash openssh-client wget curl rsync libtokyocabinet-dev
 
 apt-get -y install \

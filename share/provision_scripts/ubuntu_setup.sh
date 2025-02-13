@@ -19,6 +19,7 @@ DEBIAN_FRONTEND=noninteractive apt-get -y install \
   tcsh gawk \
   ansible \
   pandoc \
+  locales \
   libtbb-dev
 
 #add-apt-repository ppa:george-edison55/cmake-3.x

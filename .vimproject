@@ -31,6 +31,8 @@ rbbt-image=/$PWD filter="*" {
 
    ubuntu_setup.sh
 
+   amazon_setup.sh
+
    tokyocabinet.sh
 
    ruby_custom.sh

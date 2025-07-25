@@ -12,6 +12,6 @@ cd tokyocabinet-1.4.48
 ./configure --prefix=/usr/local
 make > /tc_make.log
 make install > /tc_make_install.log
-gem install tokyocabinet
+gem specific_install -l https://github.com/mikisvaz/tokyocabinet_19_fix.git
 cd /
 rm -Rf /opt/src/

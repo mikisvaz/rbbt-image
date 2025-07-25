@@ -30,8 +30,8 @@ gem specific_install -l https://github.com/mikisvaz/rubyinline.git
 
 rm -Rf /usr/lib/ruby/gems/*/doc /usr/lib/ruby/gems/*/cache
 
-grep rbbt_environment /etc/rbbt_environment || echo "[ -f ~/.rbbt/etc/environment ] && . ~/.rbbt/etc/environment" >> "/etc/rbbt_environment"
-grep rbbt_environment /etc/profile || echo echo "source /etc/rbbt_environment" >> /etc/profile
+grep rbbt_environment /etc/rbbt_environment || echo 'for f in $(rbbt find etc/environment -w all); do source "$f"; done' >> "/etc/rbbt_environment"
+grep rbbt_environment /etc/profile || echo "source /etc/rbbt_environment" >> /etc/profile
 
 
 echo $CUSTOM_SYSTEM_PACKAGES | sed 's/,/\n/g' | xargs apt-get -y install

@@ -1,4 +1,4 @@
-wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" -O /tmp/miniconda.sh
+wget --no-check-certificate "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" -O /tmp/miniconda.sh
 echo "# Python conda " >> /etc/rbbt_environment
 
 bash /tmp/miniconda.sh -b -p /usr/local/miniconda3
@@ -8,7 +8,7 @@ echo 'PATH="/usr/local/miniconda3/bin/:$PATH"' >> /etc/rbbt_environment
 
 conda create --yes -n python2 python=2.7 pip
 
-conda create --yes -n python3 python=3.6 pip
+conda create --yes -n python3 python=3.10 pip
 
 chmod 777 -R /usr/local/miniconda3/
 
@@ -23,3 +23,7 @@ echo 'conda activate python3' >> /etc/rbbt_environment
 rm -Rf /usr/local/miniconda3/pkgs
 . /etc/rbbt_environment
 
+if [ -n "$CUSTOM_CONDA" ]; then conda install $CUSTOM_CONDA; fi
+if [ -n "$CUSTOM_PIP" ]; then pip install $CUSTOM_PIP; fi
+
+pip cache purge

@@ -20,6 +20,7 @@ $ #{$0} [options]
 -h--help Print this help
 -u--user* System user to bootstrap
 -w--workflow* Workflows to bootstrap (has defaults specify 'none' to avoid them)
+-lw--local_workflows* Workflows to copy from local
 -s--server* Main Rbbt remote server (file-server and workflow server)
 -fs--file_server* Rbbt remote file server
 -ws--workflow_server* Rbbt remote workflow server
@@ -40,6 +41,8 @@ $ #{$0} [options]
 --nocolor Prevent rbbt from using colors and control sequences in the logs while provisioning
 --nobar Prevent rbbt from using progress bars while provisioning
 -g--gems* Custom gems to install
+-p--pip* Custom pip packages to install
+-c--conda* Custom conda packages to install
 -sp--system_packages* Custom system packages
 EOF
 
@@ -88,6 +91,8 @@ VARIABLES[:RBBT_NO_PROGRESS] = "true" if options[:nobar]
 
 VARIABLES[:RUBY_VERSION] = options[:ruby_version] ||= "2.6.4"
 VARIABLES[:CUSTOM_GEMS] = options[:gems]
+VARIABLES[:CUSTOM_PIP] = options[:pip]
+VARIABLES[:CUSTOM_CONDA] = options[:conda]
 VARIABLES[:CUSTOM_SYSTEM_PACKAGES] = options[:system_packages]
 
 do_steps << 'custom_gems' if options[:gems]
@@ -150,8 +155,9 @@ all_steps.each_with_index do |step,i|
                             home_dir='/root'
                           else
                             adduser --disabled-password --gecos "" #{USER}
-                            addgroup rbbt
-                            adduser #{USER} rbbt
+                            #groupadd rbbt
+                            #useradd -g rbbt -m -s /bin/bash rbbt
+
                             home_dir='/home/#{USER}'
                             chown -R #{USER} $home_dir/
                           fi
@@ -191,16 +197,41 @@ if docker_image = options[:docker]
     volumnes = options[:docker_volumnes].split(/\s*[,|]\s*/).collect{|d| "VOLUME " << d} * "\n"
     dockerfile_text.sub!(/^RUN/, volumnes + "\nRUN")
   end
-
+  
   # NOTE: Not used like this now. Used in provision script
   #
   #if options[:R_packages]
   #  dockerfile_text.sub!(/^(# END PROVISION)/, '\1' + "\n" + Open.read(File.join(script_dir, 'Dockerfile.R-packages')) + "\n" )
   #end
 
+  local_workflows = (options[:local_workflows] || "").split(",")
   TmpFile.with_file(nil, false) do |dir|
     FileUtils.mkdir_p dir
     Path.setup(dir)
+
+    if local_workflows.any?
+      dockerfile_lines = dockerfile_text.split("\n")
+
+      run_line = dockerfile_lines.select{|line| line =~ /^RUN/ }.last
+      dockerfile_lines.delete run_line
+
+      local_workflows.each do |workflow|
+        if File.exists?(workflow)
+          workflow_dir = workflow
+          workflow = File.basename workflow
+        else
+          workflow_dir = Path.setup("workflows/#{workflow}").find
+        end
+        next unless Open.exists?(workflow_dir)
+        Open.cp workflow_dir, dir[workflow].find
+        dockerfile_lines.push "COPY #{workflow} /usr/local/workflows/rbbt/#{workflow}"
+      end
+
+      dockerfile_lines.push run_line
+
+      dockerfile_text = dockerfile_lines * "\n"
+    end
+
     Open.write(dir["Dockerfile"].find, dockerfile_text)
     Open.write(dir['provision.sh'], provision_script)
 

@@ -23,7 +23,6 @@ gem install --force --no-document ZenTest
 echo "* Installing all rbbt gems"
 # Rbbt and some optional gems
 gem install --no-document --force \
-    tokyocabinet \
     ruby-prof \
     rbbt-util rbbt-sources rbbt-dm rbbt-text rbbt-rest
 
@@ -38,5 +37,7 @@ gem install --no-document \
     prime mechanize
 
 gem install --no-document mini_racer uglifier
+
+gem specific_install -l https://github.com/mikisvaz/tokyocabinet_19_fix.git
 
 gem cleanup

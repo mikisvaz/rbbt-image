@@ -1,5 +1,5 @@
-rbbt migrate ~/.rbbt/etc/ local --delete
-rbbt migrate ~/.rbbt/var/ local --delete
-rbbt migrate ~/.rbbt/share/ local --delete
-rbbt migrate ~/.rbbt/software/ local --delete
-rbbt migrate ~/.rbbt/workflows/ local --delete
+rbbt resource sync ~/.rbbt/etc/ local --delete --log 0
+rbbt resource sync ~/.rbbt/var/ local --delete --log 0
+rbbt resource sync ~/.rbbt/share/ local --delete --log 0
+rbbt resource sync ~/.rbbt/software/ local --delete --log 0
+rbbt resource sync ~/.rbbt/workflows/ local --delete --log 0

@@ -48,6 +48,8 @@ rbbt-image=/$PWD filter="*" {
 
    java.sh
 
+   npm.sh
+
    perl_custom.sh
 
    slurm_loopback.sh

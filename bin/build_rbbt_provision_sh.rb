@@ -11,11 +11,17 @@ $0 = "rbbt #{$previous_commands*""} #{ File.basename(__FILE__) }" if $previous_c
 
 orig_argv = ARGV.dup
 
+all_steps = %w(functions base_system tokyocabinet ruby_custom gem custom_gems
+java R_custom R R_packages perl_custom python_custom python user slurm_loopback
+hacks)
+
 options = SOPT.setup <<EOF
 
 Build a provision script
 
 $ #{$0} [options]
+
+This is the list of steps you can 'do': #{all_steps*", "}
 
 -h--help Print this help
 -u--user* System user to bootstrap
@@ -35,6 +41,7 @@ $ #{$0} [options]
 -dt--docker* Build docker image using the provided name
 -si--singularity* Build singularity image using the provided name
 -sis--singularity_size* Singularity image size (default 2024)
+-sd--sudo Use sudo to run singularity container
 -vb--virtualbox Build virtualbox image
 -df--docker_file* Use a Dockerfile different than the default
 -dv--docker_volumnes* List of volumes to set-up in Docker
@@ -63,7 +70,9 @@ script_dir = File.join(root_dir, "share/provision_scripts/")
 #  options[:skip_bootstrap] = true
 #end
 
-all_steps = %w(functions base_system tokyocabinet ruby_custom gem custom_gems java R_custom R R_packages perl_custom python_custom python user slurm_loopback hacks)
+all_steps = %w(functions base_system tokyocabinet ruby_custom gem custom_gems
+java R_custom R R_packages perl_custom python_custom python user slurm_loopback
+hacks)
 
 do_steps = options.include?("do")? (all_steps & options[:do].split(",")) : all_steps
 not_do_steps = options.include?(:not_do)? options[:not_do].split(",") : all_steps - do_steps
@@ -73,7 +82,7 @@ do_steps << 'user' if options[:workflow]
 
 OPTIMIZE    = options[:optimize] 
 USER        = options[:user] || 'rbbt'
-CONTAINER_DEP = options[:container_dependency] ||  'alpine'
+CONTAINER_DEP = options[:container_dependency] ||  'ubuntu'
 BASE_SYSTEM = options[:base_system] || CONTAINER_DEP
 
 VARIABLES={
@@ -96,6 +105,9 @@ VARIABLES[:CUSTOM_CONDA] = options[:conda]
 VARIABLES[:CUSTOM_SYSTEM_PACKAGES] = options[:system_packages]
 
 do_steps << 'custom_gems' if options[:gems]
+
+Log.debug 'Doing: ' + do_steps * ", "
+Log.debug 'Not doing: ' + not_do_steps * ", "
 
 provision_script =<<-EOF
 #!/bin/bash -x
@@ -307,7 +319,7 @@ EOF
     puts "BUILDING IMAGE: #{dir["singularity_bootstrap"].find}"
     puts "**************"
     puts cmd_boot
-    CMD.cmd_log(cmd_boot, :log => 4)
+    CMD.cmd_log(cmd_boot, :log => 4, sudo: options[:sudo])
   end
 
 end

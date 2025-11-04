@@ -1,7 +1,7 @@
 # Basic alpine setup
 apk add ruby ruby-dev  # Ruby
 apk add git make gcc g++ cmake # Building
-apk add bzip2 bzip2-dev zlib zlib-dev krb5 gcompat openssl openssl1.1-compat openssl1.1-compat-dev # Libs
+apk add bzip2 bzip2-dev zlib zlib-dev krb5 gcompat openssl openssl openssl-dev # Libs
 apk add bash openssh-client wget curl rsync gnu-libiconv  # Tools
 
 echo $CUSTOM_SYSTEM_PACKAGES | sed 's/,/\n/g' | xargs apk add

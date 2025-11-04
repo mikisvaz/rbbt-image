@@ -15,7 +15,7 @@ DEBIAN_FRONTEND=noninteractive apt-get -y install \
   openjdk-8-jdk \
   libcairo2 libcairo2-dev r-base-core r-base-dev r-cran-rserve liblzma5 liblzma-dev libcurl4-openssl-dev \
   build-essential zlib1g-dev libssl-dev libyaml-dev libffi-dev \
-  python3 python libtorch \
+  python3 \
   tcsh gawk \
   ansible \
   pandoc \

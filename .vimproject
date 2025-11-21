@@ -5,7 +5,12 @@ rbbt-image=/$PWD filter="*" {
  Vagrantfile
  bin=bin{
   build_rbbt_provision_sh.rb
+  prepare_docker.sh
+  prepare_herlab.sh
+  prepare_singularity.sh
+  prepare_scout-ai.sh
   run_rbbt_docker.rb
+  scout_singularity.sh
  }
  etc=etc{
   infrastructure=infrastructure{
@@ -39,6 +44,10 @@ rbbt-image=/$PWD filter="*" {
    gem.sh
    custom_gems.sh
 
+   miniconda3.sh
+   micromamba.sh
+   conda.sh
+   pip.sh
    python_custom.sh
    python.sh
 

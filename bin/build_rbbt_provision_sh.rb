@@ -13,7 +13,7 @@ orig_argv = ARGV.dup
 
 all_steps = %w(functions base_system tokyocabinet ruby_custom gem custom_gems
 java R_custom R R_packages perl_custom python_custom python user slurm_loopback
-hacks)
+hacks micromamba miniconda3 conda)
 
 options = SOPT.setup <<EOF
 
@@ -70,11 +70,7 @@ script_dir = File.join(root_dir, "share/provision_scripts/")
 #  options[:skip_bootstrap] = true
 #end
 
-all_steps = %w(functions base_system tokyocabinet ruby_custom gem custom_gems
-java R_custom R R_packages perl_custom python_custom python user slurm_loopback
-hacks)
-
-do_steps = options.include?("do")? (all_steps & options[:do].split(",")) : all_steps
+do_steps = options.include?("do")? options[:do].split(",") : all_steps
 not_do_steps = options.include?(:not_do)? options[:not_do].split(",") : all_steps - do_steps
 
 do_steps << 'base_system' if options[:base_system]
@@ -190,7 +186,7 @@ all_steps.each_with_index do |step,i|
                           EUSER
 
                           chmod 777 -R /usr/local/
-                          su -l -c "sh $user_script" #{USER}
+                          su -l -c "bash $user_script" #{USER}
 
                         EOF
                       else

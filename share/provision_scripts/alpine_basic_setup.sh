@@ -3,7 +3,7 @@ apk add ruby ruby-dev  # Ruby
 apk add git make gcc g++ cmake # Building
 apk add bzip2 bzip2-dev zlib zlib-dev krb5 gcompat # Libs
 apk add openssl1.1-compat-dev openssl1.1-compat # openssl
-apk add bash openssh-client wget curl rsync gnu-libiconv  # Tools
+apk add bash openssh-client wget curl rsync gnu-libiconv shared-mime-info  # Tools
  
 echo $CUSTOM_SYSTEM_PACKAGES | sed 's/,/\n/g' | xargs apk add
 
@@ -17,4 +17,4 @@ gem specific_install -l https://github.com/mikisvaz/rubyinline.git
 rm -Rf /usr/lib/ruby/gems/*/doc /usr/lib/ruby/gems/*/cache
 
 grep rbbt_environment /etc/rbbt_environment || echo 'for f in $(rbbt find etc/environment -w all); do source "$f"; done' >> "/etc/rbbt_environment"
-grep rbbt_environment /etc/profile || echo "source /etc/rbbt_environment" >> /etc/profile
+grep rbbt_environment /etc/profile || echo ". /etc/rbbt_environment" >> /etc/profile

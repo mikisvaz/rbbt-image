@@ -54,4 +54,4 @@ apt-get clean
 rm -rf /var/lib/apt/lists/* 
 
 echo "[ -f ~/.rbbt/etc/environment ] && . ~/.rbbt/etc/environment" >> "/etc/rbbt_environment"
-echo "source /etc/rbbt_environment" >> /etc/profile
+echo ". /etc/rbbt_environment" >> /etc/profile

@@ -11,10 +11,10 @@ if [ -z "$LOOPBACK_KEY" ]; then
 fi
 
 if [ ! -f "$LOOPBACK_KEY" ]; then
-  echo "Prepare a ssh key on '$LOOPBACK_KEY' or point to it with environment variable LOOPBACK_KEY." >&2
-  exit -1
+  echo "Prepare an SSH key at '$LOOPBACK_KEY' or point to it with the environment variable LOOPBACK_KEY." >&2
+  exit 1
 else
-  ssh localhost -i $LOOPBACK_KEY "$@"
+  ssh -i "$LOOPBACK_KEY" localhost bash -lc "'$*'"
 fi
 EOF
 
